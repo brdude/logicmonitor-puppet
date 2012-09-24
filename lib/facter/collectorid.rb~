@@ -1,0 +1,15 @@
+#Int representing installed collector ID
+
+Facter.add(:collectorid) do
+  setcode do
+    if File.exist? '/usr/local/logicmonitor/agent/conf/agent.conf'
+      f = File.open('/usr/local/logicmonitor/agent/conf/agent.conf', 'r')
+      f.eachline do |line|
+        if line.include?("id=")
+          id = line.split('=')[1]
+        end
+      end
+      id
+    end
+  end
+end
