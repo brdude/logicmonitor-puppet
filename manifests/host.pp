@@ -8,6 +8,7 @@ class logicmonitor::host (
       $display_name = $host_name,
       $description = "UNSET", 
       $alert_enable = true, 
+      $overwrite = false,
       $groups = [],
       $properties = {}
       ) inherits logicmonitor {

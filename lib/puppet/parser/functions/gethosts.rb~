@@ -1,0 +1,23 @@
+#gethosts.rb
+
+module Puppet::Parser::Functions
+  newfunction(:gethosts, :type => :rvalue) do |args|
+    Puppet::Parser::Functions.autoloader.loadall
+    require 'json'
+    array = []
+    resp = function_apiget(['/rpc/getHosts?hostGroupId=1'])
+    json = JSON.parse(resp)
+    if json["status"] == 200
+      data = json["data"]
+      data.each do |host|
+        name = host["name"]
+        hostname = host["hostname"]
+        array = array.push([hostname, name])
+      end
+    else
+      raise Puppet::ParseError, json["errmsg"]
+    end
+    hostLookup = Hash[array]
+    return hostLookup
+  end
+end

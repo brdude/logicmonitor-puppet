@@ -3,6 +3,12 @@
 # The node with this class will handle the host and group management for the entire LogicMonitor Portal similar to Cisco and F5's proxies.
 
 
-class logicmonitor::master inheirits logicmonitor {
+class logicmonitor::master inherits logicmonitor {
+
+      $test = addlmhosts()
+
+      notify{ 'Hosts2':
+            message => $test,
+      }
 } 
 

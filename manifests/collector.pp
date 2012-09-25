@@ -4,7 +4,12 @@ class logicmonitor::collector inherits logicmonitor {
  
 	 if $hascollector == false {           	 
 	      $collectorID = newcollector()
-#	      $collectorID = 84
+	      exec { "ruby collectordownloader.rb ${Logicmonitor::portal} ${Logicmonitor::user} ${Logicmonitor::password} ${collectorID}": 
+                 cwd     => "/usr/local/logicmonitor",
+      	       	 creates => "/usr/local/logicmonitor/agent/conf/agent.conf",
+      	       	 require => File['/usr/local/logicmonitor/collectordownloader.rb'],
+              }
+
 	 }  
 
 
@@ -20,13 +25,5 @@ class logicmonitor::collector inherits logicmonitor {
 	       mode   => 777,
 	 }
 	 
-
-	 exec { "ruby collectordownloader.rb ${Logicmonitor::portal} ${Logicmonitor::user} ${Logicmonitor::password} ${collectorID}": 
-               cwd     => "/usr/local/logicmonitor",
-      	       creates => "/usr/local/logicmonitor/agent/conf/agent.conf",
-      	       require => File['/usr/local/logicmonitor/collectordownloader.rb'],
-         }
-
-
 
 }
