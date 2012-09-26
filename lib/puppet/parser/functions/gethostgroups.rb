@@ -13,7 +13,7 @@ module Puppet::Parser::Functions
     if json["status"] == 200
       data = json["data"] 
       data.each do |hostgroup|
-        name = hostgroup["name"]
+        name = hostgroup["fullPath"]
         id = hostgroup["id"]
         array = array.push([name, id])
       end

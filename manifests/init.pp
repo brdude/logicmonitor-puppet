@@ -1,16 +1,11 @@
 # LogicMonitor top-level group
 # 
 
-#class logicmonitor{
-#      $portal = "ethandev"
-#      $user = "ethan"
-#      $password = "ethanD3v"
-#}
 
 class logicmonitor{
-      $portal = "demo"
+      $portal = "puppetlabs"
       $user = "ethan"
-      $password = "3th4nd3v"
+      $password = "3thand3m0"
       
       #Current solution for this module knowing how to speak to puppetdb: have the user set the hostname and port for the HTTP communication
 
