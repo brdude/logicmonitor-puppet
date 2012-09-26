@@ -19,4 +19,4 @@ module Puppet::Parser::Functions
     collectorLookup = Hash[array]
     return collectorLookup
   end
-end    
+end
