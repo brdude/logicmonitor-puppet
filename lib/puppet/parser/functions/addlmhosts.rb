@@ -41,7 +41,8 @@ module Puppet::Parser::Functions
         #handle groups
         groupids = ""
         grouplist = node["parameters"]["groups"]
-        grouplist.each do |group|
+        grouplist.each do |groupPath|
+          group = groupPath.chomp("/").reverse().chomp("/").reverse()
           if lmGroups["#{group}"] != nil
             groupids << lmGroups["#{group}"].to_s
             groupids << ","

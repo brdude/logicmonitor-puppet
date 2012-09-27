@@ -11,19 +11,19 @@ module Puppet::Parser::Functions
     returnVal = []
     lmGroups = function_gethostgroups([])
     addgroupquery = ""
-    groupsrequest = 'resources?query=' + CGI::escape('["=", "type", "Logicmonitorhostgroup"]')
-    getgroups = function_puppetdbget([groupsrequest])
+
+    getgroups = function_getpuppetgroups([])
     groups_json = JSON.parse(getgroups)
     groupLookup = []
     #populate the full list of the requested groups
     groups_json.each do |group|
-      fullpath = function_getpath(group["parameters"]["fullpath"])
+      fullpath = function_getpath(group["parameters"]["fullpath"]).chomp("/").reverse().chomp("/").reverse()
       groupsLookup = groupsLookup.push(fullpath)
     end
     
     #begin group management
     groups_json.each do |group|
-      fullpath = function_getpath(group["parameters"]["fullpath"])
+      fullpath = function_getpath(group["parameters"]["fullpath"]).chomp("/").reverse().chomp("/").reverse()
       path = fullpath.split('/')
       parentPath = fullpath.chomp("/#{path[-1]}")
       if lmGroups[fullpath] == nil

@@ -6,7 +6,7 @@ Puppet::Type.newtype(:logicmonitorhostgroup) do
   newparam(:fullpath, :namevar => true) do
     desc "The full path including all parent groups. Format: \"parentgroup/childgroup\""
     validate do |value|
-      unless value.end_with?("/")
+      unless value.start_with?("/") == true
         raise ArgumentError, "#{value} is not a valid path"
       end
     end
@@ -27,6 +27,7 @@ Puppet::Type.newtype(:logicmonitorhostgroup) do
     validate do |value|
       unless value.class == Hash
         raise ArgumentError, "#{value} is not a valid set of group properties. Properties must be in the format {\"propName0\"=>\"propValue0\",\"propName1\"=>\"propValue1\", ... }"
+      end
     end
   end
   
