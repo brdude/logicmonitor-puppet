@@ -13,6 +13,7 @@ module Puppet::Parser::Functions
     collectorNodes = function_getcollectornodes([])
     lmHosts = function_gethosts([])
     lmGroups = function_gethostgroups([])
+    lmCollectors = function_getlmcollectors([])
 
     hostReq = 'resources?query=' + CGI::escape('["and", ["=", "type", "Class"],  ["=", "title", "Logicmonitor::Host"]]')
     hostnodes = function_puppetdbget([hostReq])
@@ -32,6 +33,11 @@ module Puppet::Parser::Functions
         #Will not be nil if they passed the fqdn of the collector, should be nil if they passed it as a collector
         if collectorNodes["#{collector}"] != nil
           collectorid = collectorNodes[collector]
+        elsif lmCollectors["#{collector}"] != nil
+          collectorid = lmCollectors["#{collector}"]
+          notify{"PuppetCollector":
+            message => "Collector #{collectorid} was not found under Puppet control"
+            }
         elsif collector.to_i != 0
           collectorid = collector 
         else
