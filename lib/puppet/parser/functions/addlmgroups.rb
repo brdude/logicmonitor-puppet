@@ -3,6 +3,7 @@
 module Puppet::Parser::Functions
   newfunction(:addlmgroups, :type => :rvalue) do |args|
     Puppet::Parser::Functions.autoloader.loadall
+    require 'rubygems'
     require 'json'
     require 'cgi'
     portal = lookupvar('Logicmonitor::portal')
