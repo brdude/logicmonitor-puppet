@@ -9,7 +9,8 @@ class logicmonitor{
       
       #Current solution for this module knowing how to speak to puppetdb: have the user set the hostname and port for the HTTP communication
 
-      $puppetdb_host = 'localhost'
-      $puppetdb_http_port = 8080
+#      $puppetdb_host = 'puppet-node1.aws-w.logicmonitor.net'
+  $puppetdb_host = 'localhost'
+  $puppetdb_http_port = 8080
 
 }

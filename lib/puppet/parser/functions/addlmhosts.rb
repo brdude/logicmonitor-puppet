@@ -21,7 +21,7 @@ module Puppet::Parser::Functions
     host_json = JSON.parse(hostnodes)
     addhostquery = ""
     host_json.each do |node|
-      
+
       hostname = node["parameters"]["ipaddress"]
       displayname = node["parameters"]["display_name"]
       description = node["parameters"]["description"]
