@@ -9,11 +9,12 @@ module Puppet::Parser::Functions
     portal = lookupvar('Logicmonitor::portal')
     user = lookupvar('Logicmonitor::user')
     password = lookupvar('Logicmonitor::password')
-    returnVal = []
+#    returnVal = []
+    returnVal = ""
     collectorNodes = function_getcollectornodes([])
     lmHosts = function_gethosts([])
     lmGroups = function_gethostgroups([])
-    lmCollectors = function_getlmcollectors([])
+#    lmCollectors = function_getlmcollectors([])
 
     hostReq = 'resources?query=' + CGI::escape('["and", ["=", "type", "Class"],  ["=", "title", "Logicmonitor::Host"]]')
     hostnodes = function_puppetdbget([hostReq])
@@ -33,11 +34,8 @@ module Puppet::Parser::Functions
         #Will not be nil if they passed the fqdn of the collector, should be nil if they passed it as a collector
         if collectorNodes["#{collector}"] != nil
           collectorid = collectorNodes[collector]
-        elsif lmCollectors["#{collector}"] != nil
-          collectorid = lmCollectors["#{collector}"]
-          notify{"PuppetCollector":
-            message => "Collector #{collectorid} was not found under Puppet control"
-            }
+#        elsif lmCollectors["#{collector}"] != nil
+#          collectorid = lmCollectors["#{collector}"]
         elsif collector.to_i != 0
           collectorid = collector 
         else
@@ -48,8 +46,7 @@ module Puppet::Parser::Functions
         #handle groups
         groupids = ""
         grouplist = node["parameters"]["groups"]
-        grouplist.each do |groupPath|
-          group = groupPath.chomp("/").reverse().chomp("/").reverse()
+        grouplist.each do |group|
           if lmGroups["#{group}"] != nil
             groupids << lmGroups["#{group}"].to_s
             groupids << ","
@@ -84,11 +81,11 @@ module Puppet::Parser::Functions
         end # end if
 
  #       returnVal = addhostquery
-        returnVal = returnVal.push(function_apiget([portal, user, password, addhostquery]))
+        returnVal = returnVal.to_s + addhostquery.to_s + "\n"
 
       end #end if host exist
     end #end host_json.each
     
-    return {"responses" => returnVal}
+    return returnVal
   end #end newfunction 
 end #end module

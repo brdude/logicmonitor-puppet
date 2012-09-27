@@ -13,18 +13,17 @@ module Puppet::Parser::Functions
     lmGroups = function_gethostgroups([])
     addgroupquery = ""
 
-    getgroups = function_getpuppetgroups([])
     groups_json = JSON.parse(getgroups)
     groupLookup = []
     #populate the full list of the requested groups
     groups_json.each do |group|
-      fullpath = function_getpath(group["parameters"]["fullpath"]).chomp("/").reverse().chomp("/").reverse()
+      fullpath = function_getpath(group["parameters"]["fullpath"])
       groupsLookup = groupsLookup.push(fullpath)
     end
     
     #begin group management
     groups_json.each do |group|
-      fullpath = function_getpath(group["parameters"]["fullpath"]).chomp("/").reverse().chomp("/").reverse()
+      fullpath = function_getpath(group["parameters"]["fullpath"])
       path = fullpath.split('/')
       parentPath = fullpath.chomp("/#{path[-1]}")
       if lmGroups[fullpath] == nil
@@ -53,7 +52,7 @@ module Puppet::Parser::Functions
           parentId = lmGroups[parentPath]
           addgroupquery = addgroupquery + "&parentId=#{parentId}"
         end
-        
+        returnval = returnval + addgroupquery
       end #if lmGroups[fullpath]
     end #groups_json.each
     return returnval

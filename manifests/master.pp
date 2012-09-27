@@ -9,9 +9,9 @@ class logicmonitor::master inherits logicmonitor {
 #		message => $addgroups,
 #      }
 	
-	  $addhosts = addlmhosts()
-#      notify{"Hosts":
-#		message => $addhosts,
-#      }
+       $addhosts = addlmhosts()
+      notify{"Hosts":
+		message => $addhosts,
+      }
 } 
 
