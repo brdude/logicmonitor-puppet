@@ -1,3 +1,0 @@
-#getlmgroups.rb
-#Arguments: none
-#Returns: A hash e.g. {"group_name0"=>group_id0, "group_name1"=>group_id1}

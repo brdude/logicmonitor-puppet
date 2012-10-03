@@ -40,7 +40,7 @@ module Puppet::Parser::Functions
       if collector_nodes.has_key?(host["parameters"]["collector"])
         collector_name = host["parameters"]["collector"]
         collector_id = collector_nodes[collector_name]
-      elsif host["parameters"]["collector"].numeric?
+      elsif integer?(host["parameters"]["collector"])
         collector_id = host["parameters"]["collector"].to_i
       else
         rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
@@ -66,7 +66,7 @@ module Puppet::Parser::Functions
       
       addhostquery = "/rpc/addHost?"
       addhostquery << "hostName=#{hostname}"
-      addhostquery << "&displayedAs=#{displayname}"
+      addhostquery << "&displayedAs=#{CGI::escape(displayname)}"
       addhostquery << "&agentId=#{collector_id}"
       
       if description.nil? == false && description.include?("UNSET") == false
