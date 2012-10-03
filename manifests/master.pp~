@@ -1,9 +1,0 @@
-
-class logicmonitor::master inherits logicmonitor {
-
-  notify {"test":
-    message => addlmgroups(),
-    }
-
-  
-}
