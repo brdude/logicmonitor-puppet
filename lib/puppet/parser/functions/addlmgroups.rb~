@@ -9,8 +9,6 @@ module Puppet::Parser::Functions
     require 'json'
     require 'cgi'
 
-    rval = ""
-
     def addgroup( portalGroups, managedGroups, fullpath, parameters)
       portal = lookupvar('Logicmonitor::portal')
       user = lookupvar('Logicmonitor::user')
@@ -24,10 +22,8 @@ module Puppet::Parser::Functions
         json = JSON.parse(resp)
         if json["status"] == 200
           added_groups = {fullpath => json["data"]["id"]}
-          rval << "Addition of group " + fullpath + " succeeded\n"
           return added_groups
         else
-          rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
           return {}
         end
       elsif portalGroups[parent] != nil
@@ -38,10 +34,8 @@ module Puppet::Parser::Functions
         json = JSON.parse(resp)
         if json["status"] == 200
           added_groups = {fullpath => json["data"]["id"]}
-          rval << "Addition of group " + fullpath + " succeeded\n"
           return added_groups
         else
-          rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
           return {}
         end
       elsif portalGroups.has_key?(parent) == false and managedGroups.has_key?(parent) == true
@@ -53,7 +47,6 @@ module Puppet::Parser::Functions
         return added_groups
       else
         #error
-        rval << "Addition of group " + fullpath + " failed. Required parent group " + parent + " does not exist and is not under puppet management.\n"
         return {}
       end
       return "test"
@@ -98,6 +91,7 @@ module Puppet::Parser::Functions
       end
     end
 
+    rval = ""
     groups.each_pair do |key, value|
       if existing_groups.has_key?(key) == false
         resp = addgroup(existing_groups, groups, key, value)

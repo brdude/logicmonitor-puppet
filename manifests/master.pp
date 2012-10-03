@@ -1,17 +1,13 @@
-#master.pp
-# This is a required non-idempotent class (There needs to be one and only one node with this class declared)
-# The node with this class will handle the host and group management for the entire LogicMonitor Portal similar to Cisco and F5's proxies.
-
 
 class logicmonitor::master inherits logicmonitor {
-#      $addgroups = addlmgroups()
-#      notify{"Groups":
-#		message => $addgroups,
-#      }
-	
-       $addhosts = addlmhosts()
-      notify{"Hosts":
-		message => $addhosts,
-      }
-} 
 
+  notify {"Adding Host Groups":
+    message => addlmgroups(),
+  }
+
+  notify {"Adding Hosts":
+    message => addlmhosts(),
+    require => Notify["Adding Host Groups"],
+  }
+  
+}

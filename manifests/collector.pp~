@@ -3,8 +3,8 @@
 class logicmonitor::collector inherits logicmonitor {
 
   if $lm_collector_exist != 'true' {
-    $collectorID = newcollector()
-#    $collectorID = 7
+#    $collectorID = newcollector()
+    $collectorID = 7
     exec { "/usr/bin/ruby collectordownloader.rb ${Logicmonitor::portal} ${Logicmonitor::user} ${Logicmonitor::password} ${collectorID}": 
       cwd     => "/usr/local/logicmonitor",
       creates => "/usr/local/logicmonitor/agent/conf/agent.conf",

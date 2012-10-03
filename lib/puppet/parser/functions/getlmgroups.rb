@@ -1,9 +1,14 @@
-#gethostgroups.rb
+#getlmgroups.rb
+#Arguments: none
+#Returns: A hash e.g. {"group_name0"=>group_id0, "group_name1"=>group_id1}
+
 
 module Puppet::Parser::Functions
-  newfunction(:gethostgroups, :type => :rvalue) do |args|
+  newfunction(:getlmgroups, :type => :rvalue) do |args|
     Puppet::Parser::Functions.autoloader.loadall
+    require 'rubygems'
     require 'json'
+    require 'cgi'
     portal = lookupvar('Logicmonitor::portal')
     user = lookupvar('Logicmonitor::user')
     password = lookupvar('Logicmonitor::password')
@@ -15,12 +20,13 @@ module Puppet::Parser::Functions
       data.each do |hostgroup|
         name = hostgroup["fullPath"]
         id = hostgroup["id"]
-        array = array.push([name, id])
+        array = array.push(["/"+name, id])
       end
     else
       raise Puppet::ParseError, json["errmsg"]
     end
     hostGroupLookup = Hash[array]
     return hostGroupLookup
+
   end
 end

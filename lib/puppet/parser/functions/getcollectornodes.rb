@@ -6,18 +6,21 @@ module Puppet::Parser::Functions
     require 'rubygems'
     require 'json'
     require 'cgi'
-    array = []
-    request = 'resources?query=' + CGI::escape('["and", ["=", "type", "Class"],  ["=", "title", "Logicmonitor::Collector"]]')
-    resp = function_puppetdbget([request])
+    h = {}
+    facts = ""
+    resp = function_puppetdbget(["/resources", '["and", ["=", "type", "Class"], ["=", "title", "Logicmonitor::Collector"]]'])
     json = JSON.parse(resp)
     json.each do |node|
       n = node["certname"]
-      facts = function_puppetdbget(["facts/#{n}"])
+      facts = function_puppetdbget(["/facts/#{n}"])
       facts_json = JSON.parse(facts)
-      collectorid = facts_json["facts"]["collectorid"]
-      arary = array.push([n, collectorid])
+      if facts_json["facts"]["lm_collector_exist"].eql?("true")
+        collectorid = facts_json["facts"]["lm_collector_id"]
+      else
+        collectorid = -1
+      end
+      h = h.merge({n => collectorid})
     end
-    collectorLookup = Hash[array]
-    return collectorLookup
+    return h
   end
 end

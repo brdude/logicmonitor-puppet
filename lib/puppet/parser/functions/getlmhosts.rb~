@@ -1,0 +1,7 @@
+#getlmhosts.rb
+
+module Puppet::Parser::Functions
+  newfunction(:getlmhosts, :type => :rvalue) do |args|
+
+  end
+end

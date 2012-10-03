@@ -3,6 +3,7 @@
 module Puppet::Parser::Functions
   newfunction(:getcollectornodes, :type => :rvalue) do |args|
     Puppet::Parser::Functions.autoloader.loadall
+    require 'rubygems'
     require 'json'
     require 'cgi'
     array = []
@@ -17,6 +18,6 @@ module Puppet::Parser::Functions
       arary = array.push([n, collectorid])
     end
     collectorLookup = Hash[array]
-    return true
+    return collectorLookup
   end
-end    
+end

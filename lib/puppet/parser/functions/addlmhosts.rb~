@@ -3,30 +3,26 @@
 module Puppet::Parser::Functions
   newfunction(:addlmhosts, :type => :rvalue) do |args|
     Puppet::Parser::Functions.autoloader.loadall
-    require 'cgi'
-    require 'json'
-    collectorNodes = function_getcollectornodes([])
-    lmHosts = function_gethosts([])
-#    lmGroups = function_gethostgroups([])
+#    require 'rubygems'
+#    require 'json'
+    existing_hosts = function_getlmhosts([])
+    existing_groups = function_getlmgroups([])
+    existing_collectors = function_getlmcollectors([])
+    collector_nodes = function_getcollectornodes([])
+    host_nodes = function_puppetdbget(["/resources", '["and", ["=", "type", "Class"], ["=", "title", "Logicmonitor::Host"]]'])
+    rval = ""
+    hosts = JSON.parse(host_nodes)
 
-    hostReq = 'resources?query=' + CGI::escape('["and", ["=", "type", "Class"],  ["=", "title", "Logicmonitor::Host"]]')
-    hostnodes = function_puppetdbget([hostReq])
-    host_json = JSON.parse(hostnodes)
-#    collectorid = nil
-    #host_json.each do |node|
-     
-      #handle the collector id information
-#      collector = node["collector"]
+    hosts.each do |host|
+      if collector_nodes.has_key?(host["parameters"]["collector"])
 
-      #Will not be nil if they passed the fqdn of the collector, should be nil if they passed it as a collector
-#      if collectorNodes[collector] != nil
-#        collectorid = collectorNodes[collector]
-#      elsif collector.to_i != 0
-#        collectorid = collector 
-#      else
-#        raise Puppet:ParseError, "Collector does not exist."
-#      end
-    #end
-    lmHosts
+      elsif host["parameters"]["collector"].to_i != 0
+
+      else
+        rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+      end
+    
+    end
+    return rval
   end
 end

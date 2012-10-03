@@ -1,12 +1,12 @@
 #logicmonitorhostgroup.rb
 
-Puppet::Type.newtype(:logicmonitorhostgroup) do
+Puppet::Type.newtype(:logicmonitor_group) do
   @doc = "Create a new host group in LogicMonitor Portal "
 
   newparam(:fullpath, :namevar => true) do
-    desc "The full path including all parent groups. Format: \"parentgroup/childgroup\""
+    desc "The full path including all parent groups. Format: \"/parentgroup/childgroup\""
     validate do |value|
-      unless value.end_with?("/") == false
+      unless value.start_with?("/") == true
         raise ArgumentError, "#{value} is not a valid path"
       end
     end
@@ -14,13 +14,8 @@ Puppet::Type.newtype(:logicmonitorhostgroup) do
 
   newparam(:description) do
     desc "The long text description of a host group"
-    validate do |value|
-      if value.ascii_only? == false
-        raise ArgumentError, "#{value} contains non-ascii characters"
-      end
-    end
+    
   end
-
   
   newparam(:properties) do
     desc "A hash where the keys represent the property names and the values represent the property values. (e.g. {\"snmp.version\" => \"v2c\", \"snmp.community\" => \"public\"})"
