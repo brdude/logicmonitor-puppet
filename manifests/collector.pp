@@ -4,7 +4,6 @@ class logicmonitor::collector inherits logicmonitor {
 
   if $lm_collector_exist != 'true' {
     $collectorID = newcollector()
-#    $collectorID = 7
     exec { "/usr/bin/ruby collectordownloader.rb ${Logicmonitor::portal} ${Logicmonitor::user} ${Logicmonitor::password} ${collectorID}": 
       cwd     => "/usr/local/logicmonitor",
       creates => "/usr/local/logicmonitor/agent/conf/agent.conf",
@@ -16,13 +15,13 @@ class logicmonitor::collector inherits logicmonitor {
   
   file { '/usr/local/logicmonitor/collectordownloader.rb':
     ensure  => file,
-    mode    => 755,
+    mode    => '0755',
     source  => 'puppet:///modules/logicmonitor/collectordownloader.rb',
     require => File["/usr/local/logicmonitor/"],
   }
   
   file { '/usr/local/logicmonitor/':
     ensure => directory,
-    mode   => 777,
+    mode   => '0777',
   }
 }
