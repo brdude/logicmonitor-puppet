@@ -18,7 +18,6 @@ module Puppet::Parser::Functions
     host_nodes = function_puppetdbget(["/resources", '["and", ["=", "type", "Class"], ["=", "title", "Logicmonitor::Host"]]'])
     rval = ""
     hosts = JSON.parse(host_nodes)
-    #rval << existing_hosts.to_s + "\n"
     hosts.each do |host|
       if host["parameters"]["ip_address"].nil? or host["parameters"]["ip_address"].include?("UNSET")
         hostname = host["parameters"]["host_name"]
@@ -33,7 +32,7 @@ module Puppet::Parser::Functions
       end
       
       description = host["parameters"]["description"]
-      alertEnable = host["parameters"]["alert_enable"]
+      alertEnable = host["parameters"]["alertenable"].to_s
       
       #find collector id
       collector_id = 0
@@ -94,7 +93,7 @@ module Puppet::Parser::Functions
       else
         rval << "Host " + hostname + " could not be added to the portal. " + response_json["errmsg"] + "\n" 
       end
-      
+      rval << addhostquery + "\n"
     end
     
     return rval
