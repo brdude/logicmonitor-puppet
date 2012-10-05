@@ -95,17 +95,17 @@ Ruby 1.8.7 we require Ruby Gems and the JSON gem.
 ### Logicmonitor::Host Node
 
     node /^puppet-node2/ {
-    class {'logicmonitor::host': 
-    collector => 9,
-    ip_address => "10.171.117.9",
-    groups => ["/puppet", "/", "/puppetlabs/something/somethingelse"],
-    properties => {"snmp.community" => "puppetlabs"},
-    }
+    	 class {'logicmonitor::host': 
+    	       collector => 9,
+    	       ip_address => "10.171.117.9",
+    	       groups => ["/puppet", "/", "/puppetlabs/something/somethingelse"],
+    	       properties => {"snmp.community" => "puppetlabs"},
+    	 }
     }
 
 
 ### Logicmonitor::Collector Node
 
     node /^puppet-node3/ {
-    include logicmonitor::collector
+    	 include logicmonitor::collector
     }
