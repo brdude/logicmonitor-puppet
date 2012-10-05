@@ -71,44 +71,42 @@ Ruby 1.8.7 we require Ruby Gems and the JSON gem.
 
 ### Logicmonitor::Master Node
 
-node /^puppet-node1/ {
-
-  include logicmonitor::master
-  include logicmonitor::collector  
-  class {'logicmonitor::host':
+    node /^puppet-node1/ {
+    include logicmonitor::master
+    include logicmonitor::collector  
+    class {'logicmonitor::host':
     collector => $fqdn,
     groups => ["/puppet", "/puppetlabs/puppetdb"],
     properties => {"snmp.version" => "v2c"},
-  }
+    }
 
-  logicmonitor_group { "/puppet":
+    logicmonitor_group { "/puppet":
     properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
     description => 'This is the top level puppet managed host group',
-  }
+    }
 
-  logicmonitor_group {"/puppetlabs":}
-
-  logicmonitor_group { "/puppetlabs/puppetdb":
+    logicmonitor_group {"/puppetlabs":}
+    logicmonitor_group { "/puppetlabs/puppetdb":
     properties => {"snmp.community"=>"public"},
-  }
+    }
 
-}
+    }
 
 
 ### Logicmonitor::Host Node
 
-node /^puppet-node2/ {
-  class {'logicmonitor::host': 
+    node /^puppet-node2/ {
+    class {'logicmonitor::host': 
     collector => 9,
     ip_address => "10.171.117.9",
     groups => ["/puppet", "/", "/puppetlabs/something/somethingelse"],
     properties => {"snmp.community" => "puppetlabs"},
-  }
-}
+    }
+    }
 
 
 ### Logicmonitor::Collector Node
 
-node /^puppet-node3/ {
-  include logicmonitor::collector
-}
+    node /^puppet-node3/ {
+    include logicmonitor::collector
+    }
