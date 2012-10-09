@@ -42,9 +42,9 @@
 
 class logicmonitor {
 
-  $portal = "puppetlabs"
-  $user = "ethan"
-  $password = "3thand3m0"
+  $portal = "YourCompanyName"
+  $user = "ThisUser"
+  $password = "My_Bad_Password"
   
 
   $puppetdb_host = "localhost"
