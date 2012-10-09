@@ -88,8 +88,8 @@ module Puppet::Parser::Functions
     end
 
 
-    existing_groups = function_getlmgroups()
-    puppet_groups = JSON.parse(function_puppetdbget("/resources", '["=", "type", "Logicmonitor_group"]'))
+    existing_groups = function_getlmgroups([])
+    puppet_groups = JSON.parse(function_puppetdbget(["/resources", '["=", "type", "Logicmonitor_group"]']))
 
     groups = {}
     puppet_groups.each do |group|
