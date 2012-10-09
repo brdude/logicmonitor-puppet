@@ -19,6 +19,7 @@ module Puppet::Parser::Functions
     rval = ""
     hosts = JSON.parse(host_nodes)
     hosts.each do |host|
+      errors = 0
       if host["parameters"]["ip_address"].nil? or host["parameters"]["ip_address"].include?("UNSET")
         hostname = host["parameters"]["host_name"]
       else
@@ -43,6 +44,7 @@ module Puppet::Parser::Functions
         collector_id = host["parameters"]["collector"].to_i
       else
         rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+        errors = errors + 1
       end
       
       #handle groups
@@ -80,22 +82,23 @@ module Puppet::Parser::Functions
       end #end propHash.each
       
       
-      if grouplist.size() > 0
+      if groupids.empty? == false
         groups = groupids.chomp(',')
         addhostquery = addhostquery + "&hostGroupIds=#{groups}"
       end # end if
-      #rval << addhostquery + "\n"
-      resp = function_apiget([portal, user, password, addhostquery])
-      response_json = JSON.parse(resp)
-
-      if response_json["status"].to_i == 200
-        rval << "Host " + hostname + " was sucessfully added.\n"
-      else
-        rval << "Host " + hostname + " could not be added to the portal. " + response_json["errmsg"] + "\n" 
+      
+      if errors > 0
+        resp = function_apiget([portal, user, password, addhostquery])
+        response_json = JSON.parse(resp)
+      
+        if response_json["status"].to_i == 200
+          rval << "Host " + hostname + " was sucessfully added.\n"
+        else
+          rval << "Host " + hostname + " could not be added to the portal. " + response_json["errmsg"] + "\n" 
+        end
+        rval << addhostquery + "\n"
       end
-      rval << addhostquery + "\n"
     end
-    
     return rval
   end
 end
