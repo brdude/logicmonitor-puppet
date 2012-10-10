@@ -34,69 +34,80 @@ module Puppet::Parser::Functions
       
       description = host["parameters"]["description"]
       alertEnable = host["parameters"]["alertenable"].to_s
-      
-      #find collector id
-      collector_id = 0
-      if collector_nodes.has_key?(host["parameters"]["collector"])
-        collector_name = host["parameters"]["collector"]
-        collector_id = collector_nodes[collector_name]
-      elsif integer?(host["parameters"]["collector"])
-        collector_id = host["parameters"]["collector"].to_i
-      else
-        rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
-        errors = errors + 1
-      end
-      
-      #handle groups
-      groupids = ""
-      grouplist = host["parameters"]["groups"]
-      grouplist.each do |group|
-        if existing_groups[group]
-          groupids << existing_groups[group].to_s
-          groupids << ","
-        elsif group.eql?('/')
-          rval << "Skipping addition to the root group. If no host groups are specified the host will show up at the top level.\n"
+
+      if existing_hosts.has_key?(hostname) == false
+        #find collector id
+        collector_id = 0
+        if collector_nodes.has_key?(host["parameters"]["collector"])
+          collector_name = host["parameters"]["collector"]
+          collector_id = collector_nodes[collector_name]
+        elsif integer?(host["parameters"]["collector"])
+          collector_info = JSON.parse(function_apiget([portal, user, password, "/rpc/getAgent?agentId=#{collector_id}"]))
+          if collector_info["status"].to_i == 200
+            collector_id = host["parameters"]["collector"].to_i
+          else
+            rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+            errors = errors + 1
+          end        
         else
-          rval << "Group " + group + " does not exist. Skipping addition to group " + group + " for host "+ hostname +  "\n"
+          rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+          errors = errors + 1
         end
-      end
       
-      #handle properties
-      
-      properties = Hash[host["parameters"]["properties"]]
-      
-      addhostquery = "/rpc/addHost?"
-      addhostquery << "hostName=#{hostname}"
-      addhostquery << "&displayedAs=#{CGI::escape(displayname)}"
-      addhostquery << "&agentId=#{collector_id}"
-      
-      if description.nil? == false && description.include?("UNSET") == false
-        addhostquery = addhostquery + "&description=#{CGI::escape(description)}"
-      end #end if
-      addhostquery << "&alertEnable=#{alertEnable}"
-      i = 0
-      
-      properties.each_pair do |key, value|
-        addhostquery = addhostquery + "&propName#{i}=#{key}&propValue#{i}=#{value}"
-        i = i + 1
-      end #end propHash.each
-      
-      
-      if groupids.empty? == false
-        groups = groupids.chomp(',')
-        addhostquery = addhostquery + "&hostGroupIds=#{groups}"
-      end # end if
-      
-      if errors > 0
-        resp = function_apiget([portal, user, password, addhostquery])
-        response_json = JSON.parse(resp)
-      
-        if response_json["status"].to_i == 200
-          rval << "Host " + hostname + " was sucessfully added.\n"
-        else
-          rval << "Host " + hostname + " could not be added to the portal. " + response_json["errmsg"] + "\n" 
+        #handle groups
+        groupids = ""
+        grouplist = host["parameters"]["groups"]
+        grouplist.each do |group|
+          if existing_groups[group]
+            groupids << existing_groups[group].to_s
+            groupids << ","
+          elsif group.eql?('/')
+            rval << "Skipping addition to the root group. If no host groups are specified the host will show up at the top level.\n"
+          else
+            rval << "Group " + group + " does not exist. Skipping addition to group " + group + " for host "+ hostname +  "\n"
+          end
         end
-        rval << addhostquery + "\n"
+      
+        #handle properties
+      
+        properties = Hash[host["parameters"]["properties"]]
+      
+        addhostquery = "/rpc/addHost?"
+        addhostquery << "hostName=#{hostname}"
+        addhostquery << "&displayedAs=#{CGI::escape(displayname)}"
+        addhostquery << "&agentId=#{collector_id}"
+      
+        if description.nil? == false && description.include?("UNSET") == false
+          addhostquery = addhostquery + "&description=#{CGI::escape(description)}"
+        end #end if
+        addhostquery << "&alertEnable=#{alertEnable}"
+        i = 0
+      
+        properties.each_pair do |key, value|
+          addhostquery = addhostquery + "&propName#{i}=#{key}&propValue#{i}=#{value}"
+          i = i + 1
+        end #end propHash.each
+      
+      
+        if groupids.empty? == false
+          groups = groupids.chomp(',')
+          addhostquery = addhostquery + "&hostGroupIds=#{groups}"
+        end # end if
+      
+        if errors == 0
+          resp = function_apiget([portal, user, password, addhostquery])
+          response_json = JSON.parse(resp)
+      
+          if response_json["status"].to_i == 200
+            rval << "Host " + hostname + " was sucessfully added.\n"
+          else
+            rval << "Host " + hostname + " could not be added to the portal. ERROR: status = " + response_json["status"] + "\n" 
+            if response_json["errmsg"].include?("INSERT") == false
+              rval << "ERROR: " + response_json["errmsg"] + "\n" 
+            end
+          end
+  #        rval << addhostquery + "\n"
+        end
       end
     end
     return rval
