@@ -9,7 +9,7 @@ module Puppet::Parser::Functions
     require 'json'
     require 'cgi'
 
-    rval = ""
+    @rval = ""
 
     def addgroup( portalGroups, managedGroups, fullpath, parameters)
       portal = lookupvar('Logicmonitor::portal')
@@ -24,10 +24,10 @@ module Puppet::Parser::Functions
         json = JSON.parse(resp)
         if json["status"] == 200
           added_groups = {fullpath => json["data"]["id"]}
-          rval << "Addition of group " + fullpath + " succeeded\n"
+          @rval << "Addition of group " + fullpath + " succeeded\n"
           return added_groups
         else
-          rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
+          @rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
           return {}
         end
       elsif portalGroups[parent] != nil
@@ -38,10 +38,10 @@ module Puppet::Parser::Functions
         json = JSON.parse(resp)
         if json["status"] == 200
           added_groups = {fullpath => json["data"]["id"]}
-          rval << "Addition of group " + fullpath + " succeeded\n"
+          @rval << "Addition of group " + fullpath + " succeeded\n"
           return added_groups
         else
-          rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
+          @rval << "Addition of group " + fullpath + " failed. " + json["errmsg"] + "\n"
           return {}
         end
       elsif portalGroups.has_key?(parent) == false and managedGroups.has_key?(parent) == true
@@ -56,7 +56,7 @@ module Puppet::Parser::Functions
         rval << "Addition of group " + fullpath + " failed. Required parent group " + parent + " does not exist and is not under puppet management.\n"
         return {}
       end
-      return "test"
+      return {}
     end
 
 
@@ -101,11 +101,11 @@ module Puppet::Parser::Functions
     groups.each_pair do |key, value|
       if existing_groups.has_key?(key) == false
         resp = addgroup(existing_groups, groups, key, value)
-        rval << resp.to_s + "\n"
+        @rval << resp.to_s + "\n"
       end
     end
 
-    return rval 
+    return @rval 
     
   end
 end
