@@ -3,6 +3,7 @@
 module Puppet::Parser::Functions
   newfunction(:addlmhosts, :type => :rvalue) do |args|
     Puppet::Parser::Functions.autoloader.loadall
+    function_notice(["-= Starting Addition of Hosts =-"])
 
     def integer?(object)
       true if Integer(object) rescue false
@@ -32,6 +33,8 @@ module Puppet::Parser::Functions
         displayname = host["parameters"]["display_name"]
       end
       
+      function_notice(["Host name = " + hostname])
+
       description = host["parameters"]["description"]
       alertEnable = host["parameters"]["alertenable"].to_s
 
@@ -46,14 +49,16 @@ module Puppet::Parser::Functions
           if collector_info["status"].to_i == 200
             collector_id = host["parameters"]["collector"].to_i
           else
-            rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+            rval << "Collector " + host["parameters"]["collector"].to_s + " was not found. Skipping add.\n"
             errors = errors + 1
           end        
         else
-          rval << "Collector " + host["parameters"]["collector"] + " was not found. Skipping add.\n"
+          rval << "Collector " + host["parameters"]["collector"].to_s + " was not found. Skipping add.\n"
           errors = errors + 1
         end
       
+        function_notice(["Collector id = " + collector_id.to_s])
+
         #handle groups
         groupids = ""
         grouplist = host["parameters"]["groups"]
@@ -67,6 +72,8 @@ module Puppet::Parser::Functions
             rval << "Group " + group + " does not exist. Skipping addition to group " + group + " for host "+ hostname +  "\n"
           end
         end
+
+        function_notice(["Group list = [" + groupids.to_s + "]"])
       
         #handle properties
       
@@ -101,9 +108,9 @@ module Puppet::Parser::Functions
           if response_json["status"].to_i == 200
             rval << "Host " + hostname + " was sucessfully added.\n"
           else
-            rval << "Host " + hostname + " could not be added to the portal. ERROR: status = " + response_json["status"] + "\n" 
+            rval << "Host " + hostname + " could not be added to the portal. ERROR: status = " + response_json["status"].to_s + "\n" 
             if response_json["errmsg"].include?("INSERT") == false
-              rval << "ERROR: " + response_json["errmsg"] + "\n" 
+              rval << "ERROR: " + response_json["errmsg"].to_s + "\n" 
             end
           end
   #        rval << addhostquery + "\n"
