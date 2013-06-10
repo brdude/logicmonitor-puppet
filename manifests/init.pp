@@ -40,14 +40,6 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor {
-
-  $portal = "YourCompanyName"
-  $user = "ThisUser"
-  $password = "My_Bad_Password"
-  
-
-  $puppetdb_host = "localhost"
-  $puppetdb_http_port = 8080
+class logicmonitor($account, $user, $password, $puppetdb_server="localhost", $puppetdb_http_port=8080) {
 
 }
