@@ -14,7 +14,7 @@
 #
 # === Examples
 #
-# iclude logicmonitor::collector
+# include logicmonitor::collector
 #
 # === Authors
 #
@@ -25,16 +25,39 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor::collector inherits logicmonitor($install_dir = '/usr/local/logicmonitor/'){
+class logicmonitor::collector($install_dir="/usr/local/logicmonitor/") inherits logicmonitor {
 
-  file { 'install_dir':
-    path => $install_dr,
+  file { $install_dir:
     ensure => directory,
     mode   => '0755',
+    before => Installer[$fqdn],
+  }
+  
+  collector { $fqdn:
+    ensure => present,
+    osfam => $osfamily,
+    account => $logicmonitor::account,
+    user => $logicmonitor::user,
+    password => $logicmonitor::password,
+  }
+  
+  installer {$fqdn:
+    ensure => present,
+    install_dir => $install_dir,
+    architecture => $architecture,
+    account => $logicmonitor::account,
+    user => $logicmonitor::user,
+    password => $logicmonitor::password,
+    require => Collector[$fqdn],
   }
 
-    
+  service{"logicmonitor-agent":
+    ensure => running,
+  }
 
+  service{"logicmonitor-watchdog":
+    ensure => running,
+  }
   
   
 }

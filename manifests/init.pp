@@ -5,11 +5,7 @@
 #
 # === Parameters
 #
-# This class takes no parameters. This class is used to set local variables that child classes can inherit.
-#
-# === Variables
-#
-# [*portal*]
+# [*account*]
 #    Sets which portal to manage
 #
 # [*user*]
@@ -18,19 +14,33 @@
 # [*password*]
 #    Password for access to the portal
 #
-# [*puppetdb_host*]
+# [*puppetdb_server*]
 #    Hostname on which the PuppetDB server is listening for HTTP traffic. Recommend using localhost.
 #
 # [*puppetdb_http_port*]
 #    Port on which the PuppetDB server is listening for HTTP traffic.
 #
+# NOTE: all parameters can be set when the class is declared in your site.pp (must be declared either globally or on a single node)
+#   or in the variables found in logicmonitor::config
+#
+# === Variables
+#
+#  TBD
+#
 # === Examples
 #
-# Primarily handled by inheritance of subclasses
+# With parameters:
+#   class{ "logicmonitor":
+#     account             => "mycompany",
+#     $user               => "me",
+#     $password           => "password",
+#     $puppetdb_server    => "localhost",
+#     $puppetdb_http_port => 8080,
+#   }
 #
-# Explicit inclusion:
-#    include logicmonitor
-# 
+# Using logicmonitor::config:
+#   class( "logicmonitor": }
+#
 # === Authors
 #
 # Ethan Culler-Mayeno <ethan.culler-mayeno@logicmonitor.com>
@@ -40,6 +50,13 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor($account, $user, $password, $puppetdb_server="localhost", $puppetdb_http_port=8080) {
+class logicmonitor(
+  $account=$logicmonitor::config::account, 
+  $user=$logicmonitor::config::user, 
+  $password=$logicmonitor::config::password, 
+  $puppetdb_server=$logicmonitor::config::puppetdb_server, 
+  $puppetdb_http_port=$logicmonitor::config::puppetdb_http_port) inherits logicmonitor::config {
+  
+  notify{"logicmonitor credentials initiated": }
 
 }
