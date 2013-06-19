@@ -17,8 +17,7 @@ Puppet::Type.type(:collector).provide(:lmcollect) do
   def create
     notice("trying to create a new collector")
     create_response = rpc("addAgent", {"autogen" => "true", "description" => resource[:description]})
-    notice(create_response)
-    
+    notice(create_response)    
   end
 
   def destroy

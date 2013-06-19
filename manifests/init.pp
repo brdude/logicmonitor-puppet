@@ -57,6 +57,6 @@ class logicmonitor(
   $puppetdb_server=$logicmonitor::config::puppetdb_server, 
   $puppetdb_http_port=$logicmonitor::config::puppetdb_http_port) inherits logicmonitor::config {
   
-  notify{"logicmonitor credentials initiated": }
+    notify{"logicmonitor credentials initiated": }
 
-}
+  }

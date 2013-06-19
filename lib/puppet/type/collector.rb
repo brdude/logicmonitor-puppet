@@ -1,14 +1,46 @@
+# === Define: collector
+#
+# Manage your LogicMontior collectors. (Server side)
+# This resource type allows the collector provider to create a collector in your LogicMonitor account. The created collector is associated with the current device by way of the fqdn
+# Sets the server side information required for the creation of an installer binary.
+#
+# === Parameters
+#
+# [*namevar*]
+#   Or "description"
+#   Sets the description of the collector in your LogicMonitor Account.
+#   Must be unique, and preferred usage is the node's fully-qualified domain name.
+#
+# [*osfam*]
+#   Set the family of the current device. Currently supported families are Debian, Redhat, and Amazon kernels
+#   Support for Windows, and other *nix systems coming soon.
+#
+# [*account*]
+#   LogicMonitor account. Required for API access.
+#
+# [*user*]
+#   LogicMonitor user name. Required for API access.
+#
+# [*password*]
+#   LogicMonitor password. Required for API access.
 #
 #
+# === Examples
+#
+# Implict use (preferred)
+# node{"foobar":
+#   include logicmonitor::collector
+# }
+#
+# === Authors
+# 
+# Ethan Culler-Mayeno <ethan.culler-mayeno@logicmonitor.com>
+#
+# === Copyright
+#
+# Copyright 2012 LogicMonitor, Inc
 #
 #
-#
-#
-# Author: Ethan Culler-Mayeno
-#
-#
-
-
 
 Puppet::Type.newtype(:collector) do
   @doc = "allows more graceful management of LogicMonitor collectors"
