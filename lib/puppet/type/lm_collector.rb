@@ -42,7 +42,7 @@
 #
 #
 
-Puppet::Type.newtype(:collector) do
+Puppet::Type.newtype(:lm_collector) do
   @doc = "allows more graceful management of LogicMonitor collectors"
  
   ensurable

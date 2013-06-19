@@ -11,7 +11,7 @@
 require 'json'
 
 
-Puppet::Type.type(:collector).provide(:lmcollect) do
+Puppet::Type.type(:lm_collector).provide(:lmcollect) do
   desc "This provider handles the creation, status, and deletion of collector objects"
   
   def create

@@ -49,7 +49,7 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-Puppet::Type.newtype(:hostgroup) do
+Puppet::Type.newtype(:lm_hostgroup) do
   @doc = "Create a new host group in LogicMonitor Portal "
   ensurable
 

@@ -11,7 +11,7 @@
 require 'json'
 require 'open-uri'
 
-Puppet::Type.type(:hostgroup).provide(:lmhostgroup) do
+Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   desc "This provider handles the creation, status, and deletion of collector objects"
   
   #

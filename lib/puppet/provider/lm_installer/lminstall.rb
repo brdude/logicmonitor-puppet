@@ -10,7 +10,7 @@
 #
 require 'json'
 
-Puppet::Type.type(:installer).provide(:lminstall) do
+Puppet::Type.type(:lm_installer).provide(:lminstall) do
   desc "This provider handles interacting with your LogicMonitor account to download and install a collector"
   
   def create

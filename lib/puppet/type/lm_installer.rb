@@ -46,7 +46,7 @@
 #
 
 
-Puppet::Type.newtype(:installer) do
+Puppet::Type.newtype(:lm_installer) do
   @doc = "a new type to handle downloading and running the LogicMonitor collector install binary"
   ensurable
   

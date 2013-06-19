@@ -30,10 +30,10 @@ class logicmonitor::collector($install_dir="/usr/local/logicmonitor/") inherits 
   file { $install_dir:
     ensure => directory,
     mode   => '0755',
-    before => Installer[$fqdn],
+    before => Lm_installer[$fqdn],
   }
   
-  collector { $fqdn:
+  lm_collector { $fqdn:
     ensure => present,
     osfam => $osfamily,
     account => $logicmonitor::account,
@@ -41,14 +41,14 @@ class logicmonitor::collector($install_dir="/usr/local/logicmonitor/") inherits 
     password => $logicmonitor::password,
   }
   
-  installer {$fqdn:
+  lm_installer {$fqdn:
     ensure => present,
     install_dir => $install_dir,
     architecture => $architecture,
     account => $logicmonitor::account,
     user => $logicmonitor::user,
     password => $logicmonitor::password,
-    require => Collector[$fqdn],
+    require => Lm_collector[$fqdn],
   }
 
   service{"logicmonitor-agent":

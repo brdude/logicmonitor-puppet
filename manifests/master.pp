@@ -36,7 +36,7 @@ class logicmonitor::master inherits logicmonitor {
     require => Notify["Adding Host Groups"],
   }
 
-  Hostgroup <<| |>> {
+  Lm_hostgroup <<| |>> {
       account  => $account,
       user     => $user,
       password => $password,
