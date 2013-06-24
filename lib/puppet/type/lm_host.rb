@@ -1,4 +1,4 @@
-# === Define: hostgroup
+# === Define: host
 #
 # This resource type defines a host group in your LogicMonitor account.
 # The purpose is to introduce the following information into a puppetDB catalog for use by the LogicMonitor Master node.
@@ -6,7 +6,7 @@
 # === Parameters
 #
 # [*namevar*]
-#    Or "fullpath" 
+#    Or "hostname" 
 #    Sets the path of the group. Path must start with a "/"
 #
 # [*description*]
@@ -22,22 +22,10 @@
 #
 # [*mode*]
 #    Set the puppet management mode.
-#    :purge - will update all information for puppet controlled groups.
-#             Information not in puppet will be deleted.
+#    purge -
 #
 # === Examples
 #
-# lm_hostgroup { "/puppet":
-#   properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
-#     description => 'This is the top level puppet managed host group',
-# }
-#
-# lm_hostgroup {"/puppetlabs":}
-#
-# lm_hostgroup { "/puppetlabs/puppet":
-#   alertenable => false,
-#   description => "A very useful description",
-# }
 #
 # === Authors
 # 
@@ -48,22 +36,28 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-Puppet::Type.newtype(:lm_hostgroup) do
-  @doc = "Create a new host group in LogicMonitor Portal "
+Puppet::Type.newtype(:lm_host) do
+  @doc = "Create a new host in LogicMonitor Account "
   ensurable
+  
+  newparam(:hostname, :namevar => true) do
+    desc "The name of the host. Defaults to the fully qualified domain name. Accepts fully qualified domain name or ip address as input."
+  end
 
-  newparam(:fullpath, :namevar => true) do
-    desc "The full path including all parent groups. Format: \"/parentgroup/childgroup\""
-    validate do |value|
-      unless value.start_with?("/") == true
-        raise ArgumentError, "#{value} is not a valid path"
-      end
-    end
+  newproperty(:displayname) do
+    desc "The way the host appears in your LogicMonitor account."
   end
 
   newproperty(:description) do
-    desc "The long text description of a host group"
-    
+    desc "The long text description of a host"
+  end
+
+  newproperty(:alertenable) do
+    desc "Set alerting enabled for the host."
+  end
+
+  newproperty(:groups) do
+    desc "Set host group membership. Accepts an array of host group paths."
   end
   
   newproperty(:properties) do
@@ -75,12 +69,7 @@ Puppet::Type.newtype(:lm_hostgroup) do
       end
     end
   end
-  
-  newproperty(:alertenable) do
-    desc "Set alerting at the host group level. A value of false will turn off alerting for all hosts and subgroups in that group due to LogicMonitor's inheritance rules. For further reading: http://help.logicmonitor.com/using/i-got-an-alert-now-what/how-do-prevent-alerts-on-a-host-or-group/"
-    newvalues(:true, :false)
-  end
-  
+
   newparam(:mode) do
     desc "Set how strict puppet is regarding changes made in the LogicMonitor web application. Valid imputs:\n
 \"purge\" - puppet will remove all properties not set by puppet (for groups under puppet control)\n
@@ -101,6 +90,5 @@ Additional options coming soon."
   newparam(:password) do
     desc "this is the password to make API calls and the LogicMonitor User provided"
   end
-  
 
 end

@@ -40,5 +40,11 @@ class logicmonitor::master inherits logicmonitor {
       account  => $account,
       user     => $user,
       password => $password,
-    }
+  }
+
+  Lm_host <<| |>> {
+      account  => $account,
+      user     => $user,
+      password => $password,
+  }
 }

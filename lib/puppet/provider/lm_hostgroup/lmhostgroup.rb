@@ -1,4 +1,4 @@
-# lmcollector.rb
+# lmhostgroup.rb
 #
 #
 #

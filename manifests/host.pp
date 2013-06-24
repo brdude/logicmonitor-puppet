@@ -9,10 +9,9 @@
 # [*collector*]
 #    Required
 #    Sets which collector will be handling the data for this device.
-#    Accepts a fully qualified domain name or integer. When using a fully qualified domain name
-#    to specify the collector, the node on which the collector is running must be under puppet management.
-#    When using an integer to specify the collector, a collector with the associated ID number must exist
-#    in the Settings -> Collectors tab of the LogicMonitor Portal.
+#    Accepts a fully qualified domain name. A collector with the
+#    associated fully qualified domain name must exist in the 
+#    Settings -> Collectors tab of the LogicMonitor Portal.
 #
 # [*host_name*]
 #    Defaults to the fully qualified domain name of the node.
@@ -86,12 +85,20 @@ class logicmonitor::host(
   $collector,
   $host_name      = $fqdn,
   $display_name   = "UNSET",
-  $ip_address     = "UNSET",
   $description    = "UNSET",
   $alertenable    = true,
   $groups         = [],
   $properties     = {},
-  $mode = "add",
   ) inherits logicmonitor {
 
+    @@lm_host{$host_name:
+      ensure       => present,
+      display_name => $display_name,
+      description  => $description,
+      alertenable  => $alertenable,
+      groups       => $groups,
+      properties   => $properties,
+    }
+    
+    
 }
