@@ -1,5 +1,8 @@
 #LogicMonitor-Puppet
 
+Current Version: 0.9.3
+Branches under development: dev
+
 LogicMonitor is a Cloud-based, full stack, IT infrastructure monitoring solution that 
 allows you to manage your infrastructure monitoring from the Cloud.
 LogicMonitor-Puppet is a Puppet module for automating and managing your LogicMonitor 
