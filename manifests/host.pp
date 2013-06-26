@@ -83,17 +83,18 @@
 
 class logicmonitor::host(
   $collector,
-  $host_name      = $fqdn,
-  $display_name   = "UNSET",
-  $description    = "UNSET",
-  $alertenable    = true,
-  $groups         = [],
-  $properties     = {},
+  $hostname         = $fqdn,
+  $displayname      = $fqdn,
+  $description      = "",
+  $alertenable = true,
+  $groups           = [],
+  $properties       = {},
   ) inherits logicmonitor {
 
-    @@lm_host{$host_name:
+    @@lm_host{$hostname:
       ensure       => present,
-      display_name => $display_name,
+      collector    => $collector,
+      displayname  => $displayname,
       description  => $description,
       alertenable  => $alertenable,
       groups       => $groups,

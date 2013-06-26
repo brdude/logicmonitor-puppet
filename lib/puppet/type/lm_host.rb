@@ -52,12 +52,22 @@ Puppet::Type.newtype(:lm_host) do
     desc "The long text description of a host"
   end
 
-  newproperty(:alertenable) do
-    desc "Set alerting enabled for the host."
+  newproperty(:collector) do
+    desc "The description of the collector this host reports to."
+    validate do |value|
+      unless value.class == String
+        raise ArgumentError, "#{value} must be the unique string in the collector \"description\" field"
+      end
+    end
   end
 
-  newproperty(:groups) do
-    desc "Set host group membership. Accepts an array of host group paths."
+  newproperty(:alertenable) do
+    desc "Set alerting enabled for the host."
+    newvalues(:true, :false)
+  end
+  
+  newproperty(:groups, :array_matching => :all) do
+        desc "An array where the entries are fullpaths of groups the host should be added to. E.g. [\"/parent/child\", \"/puppet_managed\"]"
   end
   
   newproperty(:properties) do
