@@ -128,7 +128,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
 
   def build_param_hash(fullpath, description, properties, alertenable, parent_id)
     path = fullpath.rpartition("/")
-    hash = {"name" => path[2]}
+    hash = {"name" => URI::encode(path[2])}
     hash.store("parentId", parent_id)
     hash.store("alertEnable", alertenable)
     unless description.nil?
@@ -143,8 +143,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       end
     end
     hash.store("propName#{index}", "puppet.update.on") 
-    hash.store("propValue#{index}", DateTime.now().to_s)
-    hash
+    hash.store("propValue#{index}", URI::encode(DateTime.now().to_s)
   end
 
   def recursive_create(fullpath, description, properties, alertenable)
@@ -211,10 +210,10 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      puts "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
-    rescue Error => e
-      puts "There was an issue."
-      puts e.message
+      notice "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+    rescue Exception => e
+      notice "There was an issue."
+      notice e.message
     end
     return nil
   end

@@ -68,6 +68,7 @@ Puppet::Type.newtype(:lm_host) do
   
   newproperty(:groups, :array_matching => :all) do
         desc "An array where the entries are fullpaths of groups the host should be added to. E.g. [\"/parent/child\", \"/puppet_managed\"]"
+    defaultto []
   end
   
   newproperty(:properties) do

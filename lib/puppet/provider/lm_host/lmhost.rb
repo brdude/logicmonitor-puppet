@@ -19,10 +19,11 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #
   def create
     notice("Creating LogicMonitor host \"#{resource[:hostname]}\"")
+    #notice(resource[:groups])
     resource[:groups].each do |group|
       if get_group(group).nil?
         notice("Couldn't find parent group #{group}. Creating.")
-        created_group = recursive_group_create( group, nil, nil, true)
+        recursive_group_create( group, nil, nil, true)
       end
     end
     add_resp = rpc("addHost", build_host_hash(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], resource[:properties], resource[:alertenable]))
@@ -116,7 +117,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
 
   def alertenable=(value)
     notice("Updating alerting for #{resource[:hostname]}")
-    _host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], resource[:properties], value)
+    update_host(resource[:hostname], resource[:displayname], value, resource[:description], resource[:groups], resource[:properties], resource[:alertenable])    
   end
 
   #
@@ -124,16 +125,32 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #
   def groups
     notice("Checking for group memberships for #{resource[:hostname]}")
+    group_list = []
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
-    host["fullPathInIds"].each do |path|
-      host_group_resp = rpc("getHostGroup", {"hostGroupId" => path[-1]})
-      notice(host_group_resp)
+    if host
+      host["fullPathInIds"].each do |path|
+        host_group_json = rpc("getHostGroup", {"hostGroupId" => path[-1]})
+        #notice(host_group_json)
+        host_group_resp = JSON.parse(host_group_json)
+        if host_group_resp["data"]
+          group_list.push("/" + host_group_resp["data"]["fullPath"])
+        else
+          notice "Unable to retrieve host group information from server"
+        end
+      end
     end
+    #notice(group_list)
+    group_list
   end
 
   def groups=(value)
     notice("Updating the set of group memberships for  #{resource[:hostname]}")
-    #update_host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], value, resource[:properties], resource[:alertenable])
+    value.each do |group|
+      unless get_group(group)
+        recursive_group_create(group, nil, nil, true)
+      end
+    end
+    update_host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], value, resource[:properties], resource[:alertenable])
   end
 
   #
@@ -141,13 +158,30 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #
   def properties
     notice("Verifying properties for #{resource[:hostname]}")
-  
+    properties = {}
+    host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
+    if host
+      host_prop_json = rpc("getHostProperties", {"filterSystemProperties" => true, "host" => host["hostName"], "finalResult" => false})
+      host_prop_resp = JSON.parse(host_prop_json)
+#      notice(host_prop_json)
+      if host_prop_resp["data"]
+        host_prop_resp["data"].each do |prop_hash|
+          if not prop_hash["name"].eql?("system.categories") and not prop_hash["name"].eql?("puppet.update.on")
+            if (prop_hash["name"].eql?("snmp.version") and resource[:properties]["snmp.version"]) or not prop_hash["name"].eql?("snmp.version")
+              properties.store(prop_hash["name"], prop_hash["value"])
+            end
+          end
+        end
+      end
+    end
+    properties
   end
 
   def properties=(value)
     notice("Updating properties for #{resource[:hostname]}")
-    #update_host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], value, resource[:alertenable])
+    update_host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], value, resource[:alertenable])
   end
+
   #
   # Utility functions within the provider
   #
@@ -161,7 +195,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       h.store("id", host["id"])
     end
     update_resp = rpc("updateHost", h)
-    notice(update_resp)
+    #notice(update_resp)
   end
 
   #return a host object from displayname
@@ -232,7 +266,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       end
     end
     h.store("propName#{index}", "puppet.update.on") 
-    h.store("propValue#{index}", DateTime.now().to_s)
+    h.store("propValue#{index}", URI::encode(DateTime.now().to_s))
     h
   end
 
@@ -254,7 +288,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #Build the proper hash for the RPC function
   def build_group_param_hash(fullpath, description, properties, alertenable, parent_id)
     path = fullpath.rpartition("/")
-    hash = {"name" => path[2]}
+    hash = {"name" => URI::encode(path[2])}
     hash.store("parentId", parent_id)
     hash.store("alertEnable", alertenable)
     unless description.nil?
@@ -330,7 +364,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-#    notice(url)
+    notice(url)
     uri = URI(url)
     begin
       http = Net::HTTP.new(uri.host, 443)
@@ -340,10 +374,10 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      puts "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
-    rescue Error => e
-      puts "There was an issue."
-      puts e.message
+      notice "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+    rescue Exception => e
+      notice "There was an issue."
+      notice e.message
     end
     return nil
   end
