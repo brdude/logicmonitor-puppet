@@ -9,8 +9,7 @@
 #
 # === Variables
 #
-# [collectorID] 
-#    This must be set by the newcollector function. This variable represents the ID number unique to the newly generated collector.  
+#    No collector specific variables
 #
 # === Examples
 #

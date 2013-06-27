@@ -13,18 +13,14 @@
 #    associated fully qualified domain name must exist in the 
 #    Settings -> Collectors tab of the LogicMonitor Portal.
 #
-# [*host_name*]
+# [*hostname*]
 #    Defaults to the fully qualified domain name of the node.
 #    Provides the default host name and display name values for the LogicMonitor portal
 #    Can be overwritten by the $display_name and $ip_address parameters
 #
-# [*display_name*]
+# [*displayname*]
 #    Defaults to the value of $host_name.
 #    Set the display name that this node will appear under within the LogicMonitor portal
-#
-# [*ip_address*]
-#    Defaults to the value of $host_name
-#    Set the fully qualified domain name or ip address which is associated with the LogicMonitor Portal
 #
 # [*description*]
 #    Defaults to "UNSET"
@@ -44,22 +40,16 @@
 #
 # [*properties*]
 #    Must be a Hash of property names and associated values.
-#    e.g. {"snmp.version" => "v2c", "mysql.port" => 1234}
+#    e.g. {"mysql.user" => "youthere", "mysql.port" => 1234}
 #    Default to empty
 #    Set custom properties at the host level
 #
-# [*mode*]
-#    Sets the role of puppet management.
-#        "add" - will only add hosts if they do not already exist in the LogicMonitor portal.
-#        "update" - will add groups and properties to existing hosts as well as add new hosts.
-#        "overwrite" - will remove any properties or groups that are not specified in puppet.
-#    This functionality will be available in release version 1.0
 #
 #  === Examples
 #
 #  class {'logicmonitor::host':
-#          collector => 9,
-#          ip_address => "10.171.117.9",
+#          collector => "qa1.domain.com",
+#          hostname => "10.171.117.9",
 #          groups => ["/puppetlabs", "/puppetlabs/puppetdb"],
 #          properties => {"snmp.community" => "puppetlabs"},
 #          description => "This device hosts the puppetDB instance for this deployment",

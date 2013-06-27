@@ -14,12 +14,6 @@
 # [*password*]
 #    Password for access to the portal
 #
-# [*puppetdb_server*]
-#    Hostname on which the PuppetDB server is listening for HTTP traffic. Recommend using localhost.
-#
-# [*puppetdb_http_port*]
-#    Port on which the PuppetDB server is listening for HTTP traffic.
-#
 # NOTE: all parameters can be set when the class is declared in your site.pp (must be declared either globally or on a single node)
 #   or in the variables found in logicmonitor::config
 #
@@ -34,8 +28,6 @@
 #     account             => "mycompany",
 #     $user               => "me",
 #     $password           => "password",
-#     $puppetdb_server    => "localhost",
-#     $puppetdb_http_port => 8080,
 #   }
 #
 # Using logicmonitor::config:
@@ -54,9 +46,8 @@ class logicmonitor(
   $account=$logicmonitor::config::account, 
   $user=$logicmonitor::config::user, 
   $password=$logicmonitor::config::password, 
-  $puppetdb_server=$logicmonitor::config::puppetdb_server, 
-  $puppetdb_http_port=$logicmonitor::config::puppetdb_http_port) inherits logicmonitor::config {
+  ) inherits logicmonitor::config {
   
-    notify{"logicmonitor credentials initiated": }
+    notify{"logicmonitor credentials initialized": }
 
   }

@@ -8,54 +8,38 @@ LogicMonitor-Puppet is a Puppet module for automating and managing your LogicMon
 So far, we've implemented the following features:
 
 * Collector Management
-  * Creation of new collector
-  * Download of collector install package
-  * Installation of collector
+    
 * Host Management
-  * Addition of hosts to LogicMonitor portal.
-  * Host level settings:
-    * Host name/IP address
-    * Display Name
-    * Host groups
-    * Properties (e.g. MySQL port, SNMP Community, etc.)
+  * Ensurable (present/absent)
+  * Managed parameters:
+    * Display name
     * Description
-    * Alerting Enabled/Disabled
+    * Collector
+    * Alerting Enabled
+    * Group membership
+      * Creation of groups/paths which do not yet exist
+    * Properties  
 * Host Group Management
-  * Addition of multiple levels of host groups to LogicMonitor portal
-  * Host group level settings
-    * Group name
-    * Properties (e.g. MySQL port, SNMP Community, etc.)
+  * Ensurable (present/absent)
+  * Managed parameters:
+    * Display name
     * Description
-    * Alerting Enabled/Disabled
+    * Collector
+    * Alerting Enabled
+    * Creation of parent groups/paths which do not yet exist
+    * Properties  
 
 Upcoming features:
 
-* Host management
-  * Host update and overwrite modes
-    * Update keeps changes made in the UI and adds updates from Puppet
-    * Overwrite removes everything that is not under puppet control
-* Host group management
-  * Host group update and overwrite modes
-    * Update keeps changes made in the UI and adds updates from Puppet
-    * Overwrite removes everything that is not under puppet control
 * User management
   * Add and remove users
   * Assign user roles
 
 ## Requirements
 
-** PuppetDB **
+** storeconfigs **
 
-This module makes extensive use of PuppetDB's REST API to gather information about the 
-hosts and groups to manage through puppet. Currently, communication to PuppetDB is 
-supported through HTTP only. Because of this, we recommend making the PuppetDB listen for 
-HTTP connections on localhost and instantiate the logicmonitor::master class on the same
-node as the running PuppetDB instance.
-
-** Ruby Gems/JSON gem **
-
-PuppetDB and LogicMonitor each use a JSON format REST API. Due to Puppet working best with 
-Ruby 1.8.7 we require Ruby Gems and the JSON gem.
+This module uses exported resources extensively. Exported resources require storeconfigs = true.
 
 ## Installation
 
@@ -73,22 +57,56 @@ Ruby 1.8.7 we require Ruby Gems and the JSON gem.
 
 ### Logicmonitor::Master Node
 
+#### Using credentials set in logicmonitor::config
+
     node /^puppet-node1/ {
+         class {"logicmonitor":}
     	 include logicmonitor::master
 	 include logicmonitor::collector  
+
+
 	 class {'logicmonitor::host':
 	       collector => $fqdn,
 	       groups => ["/puppet", "/puppetlabs/puppetdb"],
-	       properties => {"snmp.version" => "v2c"},
+               properties => {"test.prop" => "test2", "test.port" => 12345 },
 	 }
 
-    	 logicmonitor_group { "/puppet":
+    	 @@lm_hostgroup { "/puppet":
     	       properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
     	       description => 'This is the top level puppet managed host group',
     	 }
 
-    	 logicmonitor_group {"/puppetlabs":}
-    	 logicmonitor_group { "/puppetlabs/puppetdb":
+    	 @@lm_hostgroup {"/puppetlabs":}
+    	 @@lm_hostgroup { "/puppetlabs/puppetdb":
+    	       properties => {"snmp.community"=>"public"},
+    	 }
+    }
+
+#### Setting node specific credentials
+
+    node /^puppet-node1/ {
+         class {"logicmonitor":
+	       account  => "puppet",
+	       user     => "metallica",
+	       password => "master_of_puppets",
+	 }
+    	 include logicmonitor::master
+	 include logicmonitor::collector  
+
+
+	 class {'logicmonitor::host':
+	       collector => $fqdn,
+	       groups => ["/puppet", "/puppetlabs/puppetdb"],
+               properties => {"test.prop" => "test2", "test.port" => 12345 },
+	 }
+
+    	 @@lm_hostgroup { "/puppet":
+    	       properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
+    	       description => 'This is the top level puppet managed host group',
+    	 }
+
+    	 @@lm_hostgroup {"/puppetlabs":}
+    	 @@lm_hostgroup { "/puppetlabs/puppetdb":
     	       properties => {"snmp.community"=>"public"},
     	 }
     }
@@ -97,13 +115,10 @@ Ruby 1.8.7 we require Ruby Gems and the JSON gem.
 ### Logicmonitor::Host Node
 
     node /^puppet-node2/ {
-    	 class {'logicmonitor::host': 
-    	       collector => 9,
-    	       ip_address => "10.171.117.9",
-    	       groups => ["/puppet", "/", "/puppetlabs/something/somethingelse"],
-    	       properties => {"snmp.community" => "puppetlabs"},
-    	 }
-    }
+         class {"logicmonitor::host":
+	       collector => "puppet-node3.domain.com",
+               groups => ["/test/arraytest", "/arrays", "/one/two/three" ],
+  	 }
 
 
 ### Logicmonitor::Collector Node
