@@ -143,7 +143,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       end
     end
     hash.store("propName#{index}", "puppet.update.on") 
-    hash.store("propValue#{index}", URI::encode(DateTime.now().to_s)
+    hash.store("propValue#{index}", URI::encode(DateTime.now().to_s))
   end
 
   def recursive_create(fullpath, description, properties, alertenable)
