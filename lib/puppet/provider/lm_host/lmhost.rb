@@ -364,7 +364,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    notice(url)
+    #notice(url)
     uri = URI(url)
     begin
       http = Net::HTTP.new(uri.host, 443)
