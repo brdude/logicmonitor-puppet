@@ -82,7 +82,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     if remote_group.nil?
       notice("Unable to retrive host group information from LogicMonitor")
     else
-      remote_details = rpc("getHostGroup", {"hostGroupId" => remote_group["id"], "onlyOwnProperties" => true})
+      remote_details = rpc("getHostGroup", {"hostGroupId" => remote_group["id"], "onlyOwnProperties" => false})
       #notice(remote_details)
       remote_props = JSON.parse(remote_details)
       p = {}
@@ -92,7 +92,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
           if prop["value"].include?("****") and resource[:properties].has_key?(propname)
             notice("Found password property. Verifying against LogicMonitor Servers")
             check_prop = rpc("verifyProperties", {"hostGroupId" => remote_group["id"], "propName" => propname, "propValue" => resource[:properties][propname]})
-     #       notice(check_prop)
+            #notice(check_prop)
             match = JSON.parse(check_prop)
             if match["data"]["match"]
               notice("Password appears unchanged")
@@ -142,8 +142,11 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
         index = index + 1
       end
     end
+    #notice(index)
     hash.store("propName#{index}", "puppet.update.on") 
     hash.store("propValue#{index}", URI::encode(DateTime.now().to_s))
+    #p hash
+    hash
   end
 
   def recursive_create(fullpath, description, properties, alertenable)

@@ -302,8 +302,8 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
         index = index + 1
       end
     end
-    hash.store("propName#{index}", "puppet.update.on") 
-    hash.store("propValue#{index}", DateTime.now().to_s)
+    #hash.store("propName#{index}", "puppet.update.on") 
+    #hash.store("propValue#{index}", DateTime.now().to_s)
     hash
   end
 
