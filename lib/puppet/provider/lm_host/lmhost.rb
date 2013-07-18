@@ -248,7 +248,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       h.store("agentId", agent["id"])
     end
     if description
-      h.store("description", description)
+      h.store("description", URI::encode(description))
     end
     group_ids = ""
     groups.each do |group|
