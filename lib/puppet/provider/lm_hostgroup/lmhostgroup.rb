@@ -82,7 +82,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     if remote_group.nil?
       notice("Unable to retrive host group information from LogicMonitor")
     else
-      remote_details = rpc("getHostGroup", {"hostGroupId" => remote_group["id"], "onlyOwnProperties" => false})
+      remote_details = rpc("getHostGroup", {"hostGroupId" => remote_group["id"], "onlyOwnProperties" => true})
       #notice(remote_details)
       remote_props = JSON.parse(remote_details)
       p = {}
