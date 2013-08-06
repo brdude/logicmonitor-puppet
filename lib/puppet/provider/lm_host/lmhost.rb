@@ -166,6 +166,21 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
 #      notice(host_prop_json)
       if host_prop_resp["data"]
         host_prop_resp["data"].each do |prop_hash|
+          if prop["value"].include?("****") and resource[:properties].has_key?(propname)
+            notice("Found password property. Verifying against LogicMonitor Servers")
+            check_prop = rpc("verifyProperties", {"hostId" => host["id"], "propName0" => propname, "propValue0" => resource[:properties][propname]})
+            #notice(check_prop)
+            match = JSON.parse(check_prop)
+            if match["data"]["match"]
+              notice("Password appears unchanged")
+              propval = resource[:properties][propname]
+            else
+              notice("Password has been changed.")
+              propval = prop["value"]
+            end
+          else
+            propval = prop["value"]
+          end
           if not prop_hash["name"].eql?("system.categories") and not prop_hash["name"].eql?("puppet.update.on")
             if (prop_hash["name"].eql?("snmp.version") and resource[:properties]["snmp.version"]) or not prop_hash["name"].eql?("snmp.version")
               properties.store(prop_hash["name"], prop_hash["value"])
