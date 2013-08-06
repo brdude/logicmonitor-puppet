@@ -128,11 +128,11 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
 
   def build_param_hash(fullpath, description, properties, alertenable, parent_id)
     path = fullpath.rpartition("/")
-    hash = {"name" => URI::encode(path[2])}
+    hash = {"name" => path[2] }
     hash.store("parentId", parent_id)
     hash.store("alertEnable", alertenable)
     unless description.nil?
-        hash.store("description", URI::encode(description))
+        hash.store("description", description)
     end
     index = 0
     unless properties.nil?
@@ -144,7 +144,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     end
     #notice(index)
     hash.store("propName#{index}", "puppet.update.on") 
-    hash.store("propValue#{index}", URI::encode(DateTime.now().to_s))
+    hash.store("propValue#{index}", DateTime.now().to_s )
     #p hash
     hash
   end
@@ -204,7 +204,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
     #notice(url)
-    uri = URI(url)
+    uri = URI( URI.encode url )
     begin
       http = Net::HTTP.new(uri.host, 443)
       http.use_ssl = true

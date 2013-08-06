@@ -66,7 +66,7 @@ Puppet::Type.type(:lm_collector).provide(:lmcollect) do
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    uri = URI(url)
+    uri = URI( URI.encode url )
     begin
       http = Net::HTTP.new(uri.host, 443)
       http.use_ssl = true

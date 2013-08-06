@@ -190,7 +190,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
 
   def update_host(hostname, displayname, collector, description, groups, properties, alertenable)
     host = get_host_by_displayname(displayname) || get_host_by_hostname(hostname, collector)
-    h = build_host_hash(hostname, displayname, collector, URI::encode(description), groups, properties, alertenable)
+    h = build_host_hash(hostname, displayname, collector, description, groups, properties, alertenable)
     if host
       h.store("id", host["id"])
     end
@@ -201,7 +201,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #return a host object from displayname
   def get_host_by_displayname(displayname)
     host = nil
-    host_json = rpc("getHost", {"displayName" => URI::encode(displayname)})
+    host_json = rpc("getHost", {"displayName" => displayname})
     #notice(host_json)
     host_resp = JSON.parse(host_json)
     if host_resp["status"] == 200
@@ -248,7 +248,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       h.store("agentId", agent["id"])
     end
     if description
-      h.store("description", URI::encode(description))
+      h.store("description", description)
     end
     group_ids = ""
     groups.each do |group|
@@ -266,7 +266,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       end
     end
     h.store("propName#{index}", "puppet.update.on") 
-    h.store("propValue#{index}", URI::encode(DateTime.now().to_s))
+    h.store("propValue#{index}", DateTime.now().to_s)
     h
   end
 
@@ -288,11 +288,11 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   #Build the proper hash for the RPC function
   def build_group_param_hash(fullpath, description, properties, alertenable, parent_id)
     path = fullpath.rpartition("/")
-    hash = {"name" => URI::encode(path[2])}
+    hash = {"name" => path[2]}
     hash.store("parentId", parent_id)
     hash.store("alertEnable", alertenable)
     unless description.nil?
-        hash.store("description", URI::encode(description))
+        hash.store("description", description)
     end
     index = 0
     unless properties.nil?
@@ -365,7 +365,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
     #notice(url)
-    uri = URI(url)
+    uri = URI( URI.encode url)
     begin
       http = Net::HTTP.new(uri.host, 443)
       http.use_ssl = true
