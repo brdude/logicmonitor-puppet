@@ -91,7 +91,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
           propname = prop["name"]
           if prop["value"].include?("****") and resource[:properties].has_key?(propname)
             notice("Found password property. Verifying against LogicMonitor Servers")
-            check_prop = rpc("verifyProperties", {"hostGroupId" => remote_group["id"], "propName" => propname, "propValue" => resource[:properties][propname]})
+            check_prop = rpc("verifyProperties", {"hostGroupId" => remote_group["id"], "propName0" => propname, "propValue0" => resource[:properties][propname]})
             #notice(check_prop)
             match = JSON.parse(check_prop)
             if match["data"]["match"]
