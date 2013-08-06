@@ -4,16 +4,16 @@
 #
 # === Parameters
 #
-# This class has no parameters
+# [install_dir]
+#    This is an optional parameter to chose the location to install the LogicMonitor collector
 #
 # === Variables
 #
-# [collectorID] 
-#    This must be set by the newcollector function. This variable represents the ID number unique to the newly generated collector.  
+#    No collector specific variables
 #
 # === Examples
 #
-# iclude logicmonitor::collector
+# include logicmonitor::collector
 #
 # === Authors
 #
@@ -24,29 +24,39 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor::collector inherits logicmonitor {
+class logicmonitor::collector($install_dir="/usr/local/logicmonitor/") inherits logicmonitor {
 
-  
-  if $lm_collector_exist != 'true' {
-    $collectorID = newcollector()
-    exec { "/usr/bin/ruby collectordownloader.rb ${Logicmonitor::portal} ${Logicmonitor::user} ${Logicmonitor::password} ${collectorID}": 
-      cwd     => "/usr/local/logicmonitor",
-      creates => "/usr/local/logicmonitor/agent/conf/agent.conf",
-      require => File['/usr/local/logicmonitor/collectordownloader.rb'],
-    }
-    
-  }  
-  
-  
-  file { '/usr/local/logicmonitor/collectordownloader.rb':
-    ensure  => file,
-    mode    => '0755',
-    source  => 'puppet:///modules/logicmonitor/collectordownloader.rb',
-    require => File["/usr/local/logicmonitor/"],
-  }
-  
-  file { '/usr/local/logicmonitor/':
+  file { $install_dir:
     ensure => directory,
-    mode   => '0777',
+    mode   => '0755',
+    before => Lm_installer[$fqdn],
   }
+  
+  lm_collector { $fqdn:
+    ensure => present,
+    osfam => $osfamily,
+    account => $logicmonitor::account,
+    user => $logicmonitor::user,
+    password => $logicmonitor::password,
+  }
+  
+  lm_installer {$fqdn:
+    ensure => present,
+    install_dir => $install_dir,
+    architecture => $architecture,
+    account => $logicmonitor::account,
+    user => $logicmonitor::user,
+    password => $logicmonitor::password,
+    require => Lm_collector[$fqdn],
+  }
+
+  service{"logicmonitor-agent":
+    ensure => running,
+  }
+
+  service{"logicmonitor-watchdog":
+    ensure => running,
+  }
+  
+  
 }

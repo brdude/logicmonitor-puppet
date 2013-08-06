@@ -9,23 +9,18 @@
 # [*collector*]
 #    Required
 #    Sets which collector will be handling the data for this device.
-#    Accepts a fully qualified domain name or integer. When using a fully qualified domain name
-#    to specify the collector, the node on which the collector is running must be under puppet management.
-#    When using an integer to specify the collector, a collector with the associated ID number must exist
-#    in the Settings -> Collectors tab of the LogicMonitor Portal.
+#    Accepts a fully qualified domain name. A collector with the
+#    associated fully qualified domain name must exist in the 
+#    Settings -> Collectors tab of the LogicMonitor Portal.
 #
-# [*host_name*]
+# [*hostname*]
 #    Defaults to the fully qualified domain name of the node.
 #    Provides the default host name and display name values for the LogicMonitor portal
 #    Can be overwritten by the $display_name and $ip_address parameters
 #
-# [*display_name*]
+# [*displayname*]
 #    Defaults to the value of $host_name.
 #    Set the display name that this node will appear under within the LogicMonitor portal
-#
-# [*ip_address*]
-#    Defaults to the value of $host_name
-#    Set the fully qualified domain name or ip address which is associated with the LogicMonitor Portal
 #
 # [*description*]
 #    Defaults to "UNSET"
@@ -45,22 +40,16 @@
 #
 # [*properties*]
 #    Must be a Hash of property names and associated values.
-#    e.g. {"snmp.version" => "v2c", "mysql.port" => 1234}
+#    e.g. {"mysql.user" => "youthere", "mysql.port" => 1234}
 #    Default to empty
 #    Set custom properties at the host level
 #
-# [*mode*]
-#    Sets the role of puppet management.
-#        "add" - will only add hosts if they do not already exist in the LogicMonitor portal.
-#        "update" - will add groups and properties to existing hosts as well as add new hosts.
-#        "overwrite" - will remove any properties or groups that are not specified in puppet.
-#    This functionality will be available in release version 1.0
 #
 #  === Examples
 #
 #  class {'logicmonitor::host':
-#          collector => 9,
-#          ip_address => "10.171.117.9",
+#          collector => "qa1.domain.com",
+#          hostname => "10.171.117.9",
 #          groups => ["/puppetlabs", "/puppetlabs/puppetdb"],
 #          properties => {"snmp.community" => "puppetlabs"},
 #          description => "This device hosts the puppetDB instance for this deployment",
@@ -84,14 +73,23 @@
 
 class logicmonitor::host(
   $collector,
-  $host_name      = $fqdn,
-  $display_name   = "UNSET",
-  $ip_address     = "UNSET",
-  $description    = "UNSET",
-  $alertenable    = true,
-  $groups         = [],
-  $properties     = {},
-  $mode = "add",
+  $hostname         = $fqdn,
+  $displayname      = $fqdn,
+  $description      = "",
+  $alertenable = true,
+  $groups           = [],
+  $properties       = {},
   ) inherits logicmonitor {
 
+    @@lm_host{$hostname:
+      ensure       => present,
+      collector    => $collector,
+      displayname  => $displayname,
+      description  => $description,
+      alertenable  => $alertenable,
+      groups       => $groups,
+      properties   => $properties,
+    }
+    
+    
 }
