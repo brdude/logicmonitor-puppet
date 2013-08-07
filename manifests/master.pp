@@ -27,15 +27,6 @@
 
 class logicmonitor::master inherits logicmonitor {
 
-  notify {"Adding Host Groups":
-    message => "Doing stuff here",   #addlmgroups(),
-  }
-
-  notify {"Adding Hosts":
-    message => "Doing more stuff here",   #addlmhosts(),
-    require => Notify["Adding Host Groups"],
-  }
-
   Lm_hostgroup <<| |>> {
       account  => $account,
       user     => $user,
