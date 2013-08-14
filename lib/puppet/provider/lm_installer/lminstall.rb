@@ -14,7 +14,7 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
   desc "This provider handles interacting with your LogicMonitor account to download and install a collector"
   
   def create
-    notice("Downloading new collector installer")
+    debug("Downloading new collector installer")
     agent_list = JSON.parse(rpc("getAgents", {}))
     if agent_list["status"] == 200 and not agent_list["data"].nil?
       agent_list["data"].each do |agent|
@@ -30,19 +30,19 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
           File.open(installfile, "w+"){ |f|
             f.write(download("logicmonitorsetup", {"id" => id.to_s, "arch" => arch.to_s,}))
           }
-          notice("Installing LogicMonitor collector")
+          debug("Installing LogicMonitor collector")
           File.chmod(0755, installfile) 
           execution = `#{installfile} -y`
-          notice(execution.to_s)
+          debug(execution.to_s)
         end
       end
     else
-      notice("Unable to retrive list of LogicMonitor collectors")
+      debug("Unable to retrive list of LogicMonitor collectors")
     end
   end
 
   def destroy
-    notice("Uninstalling LogicMonitor collector")
+    debug("Uninstalling LogicMonitor collector")
         agent_list = JSON.parse(rpc("getAgents", {}))
     if agent_list["status"] == 200 and not agent_list["data"].nil?
       agent_list["data"].each do |agent|
@@ -50,18 +50,18 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
           id = agent["id"]
           uninstaller = resource[:install_dir] + "agent/bin/uninstall.pl"
           execution = `#{uninstaller}`
-          notice(execution)
+          debug(execution)
           if resource[:architecture].include?("64")
             installfile = resource[:install_dir] + "logicmonitorsetup" + id.to_s + "_64.bin"
           else
             installfile = resource[:install_dir] + "logicmonitorsetup" + id.to_s + "_32.bin"
           end
-          notice("Removing installer from system")
+          debug("Removing installer from system")
           `rm -f #{installfile}`
         end
       end
     else
-      notice("Unable to retrive list of LogicMonitor collectors")
+      debug("Unable to retrive list of LogicMonitor collectors")
     end
 
   end
@@ -78,17 +78,17 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
           else
             installfile = resource[:install_dir] + "logicmonitorsetup" + id.to_s + "_32.bin"
           end
-          notice("Checking for install file: #{installfile}")
+          debug("Checking for install file: #{installfile}")
           returnval = File.exists?(installfile)
         end
       end
     else
-      notice("Unable to retrive list of LogicMonitor collectors")
+      debug("Unable to retrive list of LogicMonitor collectors")
     end
     if returnval
-      notice("Installer binary found")
+      debug("Installer binary found")
     else
-      notice("Installer binary not found")
+      debug("Installer binary not found")
     end
     returnval
   end

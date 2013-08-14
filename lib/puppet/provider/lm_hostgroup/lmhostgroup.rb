@@ -18,12 +18,12 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   # Functions as required by ensurable types
   #
   def create
-    notice("Creating LogicMonitor host group \"#{resource[:fullpath]}\"")
+    debug("Creating LogicMonitor host group \"#{resource[:fullpath]}\"")
     recursive_create(resource[:fullpath], resource[:description], resource[:properties], resource[:alertenable])
   end
 
   def destroy
-    notice("Removing LogicMonitor host group \"#{resource[:fullpath]}\"")
+    debug("Removing LogicMonitor host group \"#{resource[:fullpath]}\"")
     host_group = get_group(resource[:fullpath])
     unless host_group.nil?
       ret = rpc("deleteHostGroup", {"hgId" => host_group["id"], "deleteHosts" => false})
@@ -31,7 +31,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   end
 
   def exists?
-    notice("Checking for hostgroup #{resource[:fullpath]}")
+    debug("Checking for hostgroup #{resource[:fullpath]}")
     get_group(resource[:fullpath])
   end
 
@@ -40,18 +40,18 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   #
 
   def description
-    notice("Verifying description for #{resource[:fullpath]}")
+    debug("Verifying description for #{resource[:fullpath]}")
     remote_group = get_group(resource[:fullpath])
     remote_group["description"]
   end
 
   def description=(value)
-    notice("Updating description for #{resource[:fullpath]}")
+    debug("Updating description for #{resource[:fullpath]}")
     group = get_group(resource[:fullpath])
     hash = build_param_hash(resource[:fullpath], resource[:description], resource[:properties], resource[:alertenable], group["parentId"])
     hash.store("id", group["id"])
     response = rpc("updateHostGroup", hash)
- #   notice(response)
+ #   debug(response)
   end
 
   #
@@ -59,46 +59,46 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   #
 
   def alertenable
-    notice("Verifying alerting status for #{resource[:fullpath]}")
+    debug("Verifying alerting status for #{resource[:fullpath]}")
     remote_group = get_group(resource[:fullpath])
     remote_group["alertEnable"].to_s
   end
 
   def alertenable=(value)
-    notice("Updating alerting status for #{resource[:fullpath]}")
+    debug("Updating alerting status for #{resource[:fullpath]}")
     group = get_group(resource[:fullpath])
     hash = build_param_hash(resource[:fullpath], resource[:description], resource[:properties], resource[:alertenable], group["parentId"])
     hash.store("id", group["id"])
     response = rpc("updateHostGroup", hash)
-#    notice(response)
+#    debug(response)
   end
 
   #
   # Property functions for checking and setting properties on a host group
   #
   def properties
-    notice("Verifying properties for #{resource[:fullpath]}")
+    debug("Verifying properties for #{resource[:fullpath]}")
     remote_group = get_group(resource[:fullpath])
     if remote_group.nil?
-      notice("Unable to retrive host group information from LogicMonitor")
+      debug("Unable to retrive host group information from LogicMonitor")
     else
       remote_details = rpc("getHostGroup", {"hostGroupId" => remote_group["id"], "onlyOwnProperties" => true})
-      #notice(remote_details)
+      #debug(remote_details)
       remote_props = JSON.parse(remote_details)
       p = {}
       if remote_props["data"]["properties"]
         remote_props["data"]["properties"].each do |prop|
           propname = prop["name"]
           if prop["value"].include?("****") and resource[:properties].has_key?(propname)
-            notice("Found password property. Verifying against LogicMonitor Servers")
+            debug("Found password property. Verifying against LogicMonitor Servers")
             check_prop = rpc("verifyProperties", {"hostGroupId" => remote_group["id"], "propName0" => propname, "propValue0" => resource[:properties][propname]})
-            #notice(check_prop)
+            #debug(check_prop)
             match = JSON.parse(check_prop)
             if match["data"]["match"]
-              notice("Password appears unchanged")
+              debug("Password appears unchanged")
               propval = resource[:properties][propname]
             else
-              notice("Password has been changed.")
+              debug("Password has been changed.")
               propval = prop["value"]
             end
           else
@@ -114,12 +114,12 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   end
 
   def properties=(value)
-    notice("Setting properties for host group \"#{resource[:fullpath]}\"")
+    debug("Setting properties for host group \"#{resource[:fullpath]}\"")
     group = get_group(resource[:fullpath])
     hash = build_param_hash(resource[:fullpath], resource[:description], resource[:properties], resource[:alertenable], group["parentId"])
     hash.store("id", group["id"])
     response = rpc("updateHostGroup", hash)
-    #notice(response)
+    #debug(response)
   end
 
   #
@@ -142,7 +142,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
         index = index + 1
       end
     end
-    #notice(index)
+    #debug(index)
     hash.store("propName#{index}", "puppet.update.on") 
     hash.store("propValue#{index}", DateTime.now().to_s )
     #p hash
@@ -152,14 +152,14 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   def recursive_create(fullpath, description, properties, alertenable)
     path = fullpath.rpartition("/")
     parent_path = path[0]
-    notice("checking for parent: #{path[2]}")
+    debug("checking for parent: #{path[2]}")
     parent_id = 1
     if parent_path.nil? or parent_path.empty?
-      notice("highest level")
+      debug("highest level")
     else
       parent = get_group(parent_path)
       if not parent.nil?
-        notice("parent group exists")
+        debug("parent group exists")
         parent_id = parent["id"]
       else
         parent_ret = recursive_create(parent_path, nil, nil, true) #create parent group with basic information.
@@ -182,7 +182,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     returnval = nil 
     group_list = JSON.parse(rpc("getHostGroups", {}))
     if group_list["data"].nil? 
-      notice("Unable to retrieve list of host groups from LogicMonitor Account")
+      debug("Unable to retrieve list of host groups from LogicMonitor Account")
     else
       group_list["data"].each do |group|
         if group["fullPath"].eql?(fullpath.sub("/", ""))    #Check to see if group exists          
@@ -203,7 +203,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    #notice(url)
+    #debug(url)
     uri = URI( URI.encode url )
     begin
       http = Net::HTTP.new(uri.host, 443)
@@ -213,10 +213,10 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      notice "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+      debug "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Exception => e
-      notice "There was an issue."
-      notice e.message
+      debug "There was an issue."
+      debug e.message
     end
     return nil
   end

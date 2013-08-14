@@ -15,24 +15,24 @@ Puppet::Type.type(:lm_collector).provide(:lmcollect) do
   desc "This provider handles the creation, status, and deletion of collector objects"
   
   def create
-    notice("trying to create a new collector")
+    debug("trying to create a new collector")
     create_response = rpc("addAgent", {"autogen" => "true", "description" => resource[:description]})
-    notice(create_response)    
+    debug(create_response)    
   end
 
   def destroy
-    notice("trying to destroy collector")
+    debug("trying to destroy collector")
     description = resource[:description]
     agentlist_json = JSON.parse(rpc("getAgents", {}))
     if agentlist_json["status"] == 200 and not agentlist_json["data"].nil?
       agentlist_json["data"].each do |agent|
         if agent["description"].eql?(resource[:description])
           destroy_response = rpc("deleteAgent", {"id" => agent["id"]})
-          notice(destroy_response)
+          debug(destroy_response)
         end
       end
     else
-      notice("Was unable to retrive list of existing LogicMonitor collectors")
+      debug("Was unable to retrive list of existing LogicMonitor collectors")
     end
   end
 
@@ -45,12 +45,12 @@ Puppet::Type.type(:lm_collector).provide(:lmcollect) do
       agent_list = agent_list_ret["data"]
       agent_list_ret["data"].each do |agent|
         if resource[:description].eql?(agent["description"])
-          notice("collector found with matching description")
+          debug("collector found with matching description")
           returnval = true
         end
       end
     else
-      notice("the list of collectors could not be retrieved")
+      debug("the list of collectors could not be retrieved")
     end
     returnval
   end
