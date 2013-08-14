@@ -18,29 +18,29 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Functions as required by ensurable types
   #
   def create
-    notice("Creating LogicMonitor host \"#{resource[:hostname]}\"")
-    #notice(resource[:groups])
+    debug("Creating LogicMonitor host \"#{resource[:hostname]}\"")
+    #debug(resource[:groups])
     resource[:groups].each do |group|
       if get_group(group).nil?
-        notice("Couldn't find parent group #{group}. Creating.")
+        debug("Couldn't find parent group #{group}. Creating.")
         recursive_group_create( group, nil, nil, true)
       end
     end
     add_resp = rpc("addHost", build_host_hash(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], resource[:properties], resource[:alertenable]))
-    #notice add_resp
+    #debug add_resp
   end
 
   def destroy
-    notice("Removing LogicMonitor host  \"#{resource[:hostname]}\"")
+    debug("Removing LogicMonitor host  \"#{resource[:hostname]}\"")
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     if host
       delete_resp = rpc("deleteHost", {"hostId" => host["id"], "deleteFromSystem" => true})
-      #notice(delete_resp)
+      #debug(delete_resp)
     end
   end
 
   def exists?
-    notice("Checking LogicMonitor for host #{resource[:hostname]}")
+    debug("Checking LogicMonitor for host #{resource[:hostname]}")
     retval = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     retval
   end
@@ -49,7 +49,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Display name get and set functions
   #
   def displayname
-    notice("Checking displayname on #{resource[:hostname]}")
+    debug("Checking displayname on #{resource[:hostname]}")
     disp_name = ""
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     if host
@@ -59,7 +59,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   end
   
   def displayname=(value)
-    notice("Updating displayname on #{resource[:hostname]}")
+    debug("Updating displayname on #{resource[:hostname]}")
     update_host(resource[:hostname], value, resource[:collector], resource[:description], resource[:groups], resource[:properties], resource[:alertenable])
   end
 
@@ -67,7 +67,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Description get and set functions
   #
   def description
-    notice("Checking the long text description on  #{resource[:hostname]}")
+    debug("Checking the long text description on  #{resource[:hostname]}")
     desc = ""
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     if host
@@ -77,7 +77,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   end
 
   def description=(value)
-    notice("Updating the long text description on #{resource[:hostname]}")
+    debug("Updating the long text description on #{resource[:hostname]}")
     update_host(resource[:hostname], resource[:displayname], resource[:collector], value, resource[:groups], resource[:properties], resource[:alertenable])
   end
 
@@ -85,7 +85,7 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Monitoring collector get and set functions
   #
   def collector
-    notice("Checking for existence of a collector on #{resource[:collector]}")
+    debug("Checking for existence of a collector on #{resource[:collector]}")
     collector = nil
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     if host
@@ -94,14 +94,14 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
       if agent_resp["status"] == 200
         collector = agent_resp["data"]["description"]
       else
-        notice("Unable to retrieve collector list from server")
+        debug("Unable to retrieve collector list from server")
       end
     end
     collector
   end
 
   def collector=(value)
-    notice("Setting monitoring collector to #{resource[:collector]}")
+    debug("Setting monitoring collector to #{resource[:collector]}")
     update_host(resource[:hostname], resource[:displayname], value, resource[:description], resource[:groups], resource[:properties], resource[:alertenable])
   end
 
@@ -110,13 +110,13 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Alert enable get and set functions
   #
   def alertenable
-    notice("Checking if alerting is enabled on #{resource[:hostname]}")
+    debug("Checking if alerting is enabled on #{resource[:hostname]}")
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     host["alertEnable"].to_s
   end
 
   def alertenable=(value)
-    notice("Updating alerting for #{resource[:hostname]}")
+    debug("Updating alerting for #{resource[:hostname]}")
     update_host(resource[:hostname], resource[:displayname], value, resource[:description], resource[:groups], resource[:properties], resource[:alertenable])    
   end
 
@@ -124,27 +124,27 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   # Group membership get and set functions
   #
   def groups
-    notice("Checking for group memberships for #{resource[:hostname]}")
+    debug("Checking for group memberships for #{resource[:hostname]}")
     group_list = []
     host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
     if host
       host["fullPathInIds"].each do |path|
         host_group_json = rpc("getHostGroup", {"hostGroupId" => path[-1]})
-        #notice(host_group_json)
+        #debug(host_group_json)
         host_group_resp = JSON.parse(host_group_json)
         if host_group_resp["data"]
           group_list.push("/" + host_group_resp["data"]["fullPath"])
         else
-          notice "Unable to retrieve host group information from server"
+          debug "Unable to retrieve host group information from server"
         end
       end
     end
-    #notice(group_list)
+    #debug(group_list)
     group_list
   end
 
   def groups=(value)
-    notice("Updating the set of group memberships for  #{resource[:hostname]}")
+    debug("Updating the set of group memberships for  #{resource[:hostname]}")
     value.each do |group|
       unless get_group(group)
         recursive_group_create(group, nil, nil, true)
@@ -157,26 +157,26 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
 # Property functions for checking and setting properties on a host
 #
 def properties
-  notice("Verifying properties for #{resource[:hostname]}")
+  debug("Verifying properties for #{resource[:hostname]}")
   properties = {}
   host = get_host_by_displayname(resource[:displayname]) || get_host_by_hostname(resource[:hostname], resource[:collector])
   if host
     host_prop_json = rpc("getHostProperties", {"filterSystemProperties" => true, "host" => host["hostName"], "finalResult" => false})
     host_prop_resp = JSON.parse(host_prop_json)
-#      notice(host_prop_json)
+#      debug(host_prop_json)
     if host_prop_resp["data"]
       host_prop_resp["data"].each do |prop_hash|
         propname = prop_hash["name"]
         if prop_hash["value"].include?("****") and resource[:properties].has_key?(propname)
-          notice("Found password property. Verifying against LogicMonitor Servers")
+          debug("Found password property. Verifying against LogicMonitor Servers")
           check_prop = rpc("verifyProperties", {"hostId" => host["id"], "propName0" => propname, "propValue0" => resource[:properties][propname]})
-          #notice(check_prop)
+          #debug(check_prop)
           match = JSON.parse(check_prop)
           if match["data"]["match"]
-            notice("Password appears unchanged")
+            debug("Password appears unchanged")
             propval = resource[:properties][propname]
           else
-            notice("Password has been changed.")
+            debug("Password has been changed.")
             propval = prop_hash["value"]
           end
         else
@@ -207,18 +207,18 @@ end
       h.store("id", host["id"])
     end
     update_resp = rpc("updateHost", h)
-    #notice(update_resp)
+    #debug(update_resp)
   end
 
   #return a host object from displayname
   def get_host_by_displayname(displayname)
     host = nil
     host_json = rpc("getHost", {"displayName" => displayname})
-    #notice(host_json)
+    #debug(host_json)
     host_resp = JSON.parse(host_json)
     if host_resp["status"] == 200
       host = host_resp["data"]
-#      notice("Found host matching #{displayname}")
+#      debug("Found host matching #{displayname}")
     end
     host
   end
@@ -232,8 +232,8 @@ end
     if hosts_resp["status"] == 200
       hosts_resp["data"]["hosts"].each do |h|
         if h["hostName"].eql?(hostname)
-#          notice("Found host with matching hostname: #{resource[:hostname]}")
-#          notice("Checking agent match")
+#          debug("Found host with matching hostname: #{resource[:hostname]}")
+#          debug("Checking agent match")
           if collector_resp["status"] == 200
             collector_resp["data"].each do |c|
               if c["description"].eql?(collector)
@@ -241,12 +241,12 @@ end
               end
             end
           else
-            notice("Unable to retrieve collector list from server")
+            debug("Unable to retrieve collector list from server")
           end
         end
       end
     else
-      notice("Unable to retrieve host list from server" )
+      debug("Unable to retrieve host list from server" )
     end
     host
   end
@@ -292,7 +292,7 @@ end
         end
       end
     else
-      notice("Unable to get list of collectors from the server")
+      debug("Unable to get list of collectors from the server")
     end
     ret_agent
   end
@@ -323,14 +323,14 @@ end
   def recursive_group_create(fullpath, description, properties, alertenable)
     path = fullpath.rpartition("/")
     parent_path = path[0]
-#    notice("checking for parent: #{path[2]}")
+#    debug("checking for parent: #{path[2]}")
     parent_id = 1
     if parent_path.nil? or parent_path.empty?
-      notice("highest level")
+      debug("highest level")
     else
       parent = get_group(parent_path)
       if not parent.nil?
-#        notice("parent group exists")
+#        debug("parent group exists")
         parent_id = parent["id"]
       else
         parent_ret = recursive_group_create(parent_path, nil, nil, true) #create parent group with basic information.
@@ -354,7 +354,7 @@ end
     returnval = nil 
     group_list = JSON.parse(rpc("getHostGroups", {}))
     if group_list["data"].nil? 
-      notice("Unable to retrieve list of host groups from LogicMonitor Account")
+      debug("Unable to retrieve list of host groups from LogicMonitor Account")
     else
       group_list["data"].each do |group|
         if group["fullPath"].eql?(fullpath.sub("/", ""))    #Check to see if group exists          
@@ -376,7 +376,7 @@ end
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    #notice(url)
+    #debug(url)
     uri = URI( URI.encode url)
     begin
       http = Net::HTTP.new(uri.host, 443)
@@ -386,10 +386,10 @@ end
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      notice "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+      debug "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Exception => e
-      notice "There was an issue."
-      notice e.message
+      debug "There was an issue."
+      debug e.message
     end
     return nil
   end
