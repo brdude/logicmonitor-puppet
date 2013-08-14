@@ -52,10 +52,12 @@ class logicmonitor::collector($install_dir="/usr/local/logicmonitor/") inherits 
 
   service{"logicmonitor-agent":
     ensure => running,
+    require => Lm_installer[$fqdn],
   }
 
   service{"logicmonitor-watchdog":
     ensure => running,
+    require => Lm_installer[$fqdn],
   }
   
   
