@@ -213,10 +213,10 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      debug "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+      alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Exception => e
-      debug "There was an issue."
-      debug e.message
+      alert "There was an issue."
+      alert e.message
     end
     return nil
   end

@@ -75,10 +75,10 @@ Puppet::Type.type(:lm_collector).provide(:lmcollect) do
       response = http.request(req)
       return response.body
     rescue SocketError => se
-      puts "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
+      alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Error => e
-      puts "There was an issue."
-      puts e.message
+      alert "There was an issue."
+      alert e.message
     end
     return nil
   end
