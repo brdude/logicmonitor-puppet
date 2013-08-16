@@ -1,17 +1,30 @@
 #LogicMonitor-Puppet
 
-Current Version: 0.9.3
-Branches under development: dev
-
+Current Version: 1.0.0
 LogicMonitor is a Cloud-based, full stack, IT infrastructure monitoring solution that 
 allows you to manage your infrastructure monitoring from the Cloud.
 LogicMonitor-Puppet is a Puppet module for automating and managing your LogicMonitor 
 (SaaS based, full stack, datacenter monitoring) portal via Puppet.
 
+##LogicMonitor's Puppet module overview
+LogicMonitor's Puppet module defines 5 classes and 4 custom resource types. For additional documentation visit http://help.logicmonitor.com/integrations/puppet-integration/
+
+Classes:
+* logicmonitor: Handles setting credentials needed for interacting with the LogicMonitor API.
+* logicmonitor::config: Provides the default credentials to the logicmonitor class.
+* logicmonitor::master: Collects the exported lm_host resources and lm_hostgroup resources. Communicates with the LogicMonitor API
+* logicmonitor::collector: Handles LogicMonitor collector management for the device. Declares an instance of lm_collector and lm_installer resources.
+* logicmonitor::host: Declares an exported lm_host resource.
+
+Resource Types:
+* lm_hostgroup: Defines the behavior of the handling of LogicMonitor host groups. Recommend using exported resources.
+* lm_host: Defines the handling behavior of LogicMonitor hosts. Used only within logicmonitor::host class.
+* lm_collector: Defines the handling behavior of LogicMonitor collectors. Used only with logicmonitor::collector class.
+* lm_installer: Defines the handling behavior of LogicMonitor collector installation binaries. Used only within logicmonitor::collector class.
+
 So far, we've implemented the following features:
 
-* Collector Management
-    
+* Collector Management    
 * Host Management
   * Ensurable (present/absent)
   * Managed parameters:
@@ -39,6 +52,14 @@ Upcoming features:
   * Assign user roles
 
 ## Requirements
+
+** Ruby (1.8.7 or 1.9.3) and Puppet 3.X **
+
+This is a module written for Puppet 3
+
+** Ruby Gems  JSON Gem **
+
+This module interacts with LogicMonitor's API which is JSON based. JSON gem needed to parse responses from the servers
 
 ** storeconfigs **
 
