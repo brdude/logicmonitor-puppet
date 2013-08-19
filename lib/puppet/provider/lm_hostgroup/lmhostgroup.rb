@@ -15,6 +15,31 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   desc "This provider handles the creation, status, and deletion of collector objects"
   
   #
+  # prefetch lm_host instances. This allows all lm_host resources to use the same https connection
+  # 
+  def self.prefetch(instances)
+    @accounts = []
+    @connections = {}
+    instances.each do |name, resource|
+      @accounts.push(resource[:account])
+    end
+    @accounts.uniq!.each do |account|
+      @connections[account] = new_connection(account + ".logicmonitor.com")
+    end
+  end
+  
+  def self.new_connection(host)
+    @conn_created_at = Time.now()
+    @connection = Net::HTTP.new(host, 443)
+    @connection.use_ssl = true
+    @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    return @connection.start()  #return @connection
+  end
+
+  def self.get_connection(account)
+    return @connections[account]
+  end  
+  #
   # Functions as required by ensurable types
   #
   def create
@@ -206,9 +231,7 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     #debug(url)
     uri = URI( URI.encode url )
     begin
-      http = Net::HTTP.new(uri.host, 443)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http = self.class.get_connection(company)
       req = Net::HTTP::Get.new(uri.request_uri)
       response = http.request(req)
       return response.body
