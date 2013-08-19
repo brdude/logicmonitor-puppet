@@ -73,8 +73,8 @@
 
 class logicmonitor::host(
   $collector,
-  $hostname         = $fqdn,
-  $displayname      = $fqdn,
+  $hostname         = $::fqdn,
+  $displayname      = $::fqdn,
   $description      = "",
   $alertenable = true,
   $groups           = [],
