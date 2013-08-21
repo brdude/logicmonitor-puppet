@@ -85,7 +85,6 @@ This module uses exported resources extensively. Exported resources require stor
 #### Using credentials set in logicmonitor::config
 
     node /^puppet-node1/ {
-         class {"logicmonitor":}
     	 include logicmonitor::master
 	 include logicmonitor::collector  
 
