@@ -95,7 +95,13 @@ This module uses exported resources extensively. Exported resources require stor
                properties => {"test.prop" => "test2", "test.port" => 12345 },
 	 }
 
-    	 @@lm_hostgroup { "/puppet":
+         # Managing the properties on the root host group will set these properties for the entire LogicMonitor account
+         # These properties can be over written by setting them at the child group or host level.
+    	 @@lm_hostgroup { "/":
+    	       properties => {"mysql.user" => "default_user" },
+    	 }
+
+	 @@lm_hostgroup { "/puppet":
     	       properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
     	       description => 'This is the top level puppet managed host group',
     	 }
@@ -124,9 +130,15 @@ This module uses exported resources extensively. Exported resources require stor
                properties => {"test.prop" => "test2", "test.port" => 12345 },
 	 }
 
+         # Managing the properties on the root host group will set these properties for the entire LogicMonitor account
+         # These properties can be over written by setting them at the child group or host level.
+    	 @@lm_hostgroup { "/":
+    	       properties => {"mysql.user" => "default_user" },
+    	 }
+
     	 @@lm_hostgroup { "/puppet":
     	       properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
-    	       description => 'This is the top level puppet managed host group',
+    	       description => 'This is a group with all puppet managed hosts',
     	 }
 
     	 @@lm_hostgroup {"/puppetlabs":}
