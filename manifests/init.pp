@@ -48,6 +48,5 @@ class logicmonitor(
   $password=$logicmonitor::config::password, 
   ) inherits logicmonitor::config {
   
-    notify{"logicmonitor credentials initialized": }
 
-  }
+}
