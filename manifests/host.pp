@@ -82,7 +82,6 @@ class logicmonitor::host(
   $alertenable = true,
   $groups           = [],
   $properties       = {},
-  $opsnote          = false,
   ) inherits logicmonitor {
 
     @@lm_host{$hostname:
@@ -93,7 +92,6 @@ class logicmonitor::host(
       alertenable  => $alertenable,
       groups       => $groups,
       properties   => $properties,
-      opsnote      => $opsnote,
    }
     
     

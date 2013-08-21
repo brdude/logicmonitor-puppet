@@ -95,11 +95,6 @@ Additional options coming soon."
 
   end
 
-  newparam(:opsnote) do
-    desc "Set insertion of opsnotes enabled for the host."
-    newvalues(:true, :false)
-  end
-
   newparam(:account) do
     desc "This is the LogicMonitor account name"
   end

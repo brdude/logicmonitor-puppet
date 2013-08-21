@@ -239,9 +239,6 @@ end
     if host
       h.store("id", host["id"])
     end
-    #if resource[:opsnote]
-    #  opsnote_resp = rpc("addOpsNote", {"description" => "Puppet update: "}
-    #end
     update_resp = rpc("updateHost", h)
     #debug(update_resp)
     update_resp
