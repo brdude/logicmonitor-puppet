@@ -159,7 +159,9 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
         #debug(host_group_json)
         host_group_resp = JSON.parse(host_group_json)
         if host_group_resp["data"]
-          group_list.push("/" + host_group_resp["data"]["fullPath"])
+          if host_group_resp["data"]["appliesTo"].eql?("")
+            group_list.push("/" + host_group_resp["data"]["fullPath"])
+          end
         else
           debug "Unable to retrieve host group information from server"
         end
