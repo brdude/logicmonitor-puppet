@@ -44,6 +44,9 @@
 #    Default to empty
 #    Set custom properties at the host level
 #
+# [*opsnote*]
+#    Boolean. Defaults to false.
+#    When true will insert an OpsNote in your LogicMonitor account when Puppet updates the host.
 #
 #  === Examples
 #
@@ -79,6 +82,7 @@ class logicmonitor::host(
   $alertenable = true,
   $groups           = [],
   $properties       = {},
+  $opsnote          = false,
   ) inherits logicmonitor {
 
     @@lm_host{$hostname:
@@ -89,7 +93,8 @@ class logicmonitor::host(
       alertenable  => $alertenable,
       groups       => $groups,
       properties   => $properties,
-    }
+      opsnote      => $opsnote,
+   }
     
     
 }

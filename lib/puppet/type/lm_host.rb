@@ -24,6 +24,11 @@
 #    Set the puppet management mode.
 #    purge -
 #
+# [*opsnote*]
+#    Boolean value setting whether to insert an OpsNote into your LogicMonitor account
+#    when Puppet changes the host.
+#
+#
 # === Examples
 #
 #
@@ -88,6 +93,11 @@ Additional options coming soon."
     newvalues(:purge)
     defaultto :purge
 
+  end
+
+  newparam(:opsnote) do
+    desc "Set insertion of opsnotes enabled for the host."
+    newvalues(:true, :false)
   end
 
   newparam(:account) do

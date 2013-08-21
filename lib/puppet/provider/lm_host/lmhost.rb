@@ -221,6 +221,11 @@ def properties
   properties
 end
 
+def properties=(value)
+  debug("Updating properties for #{resource[:hostname]}")
+  update_host(resource[:hostname], resource[:displayname], resource[:collector], resource[:description], resource[:groups], value, resource[:alertenable])
+end 
+
 
   #
   # Utility functions within the provider
@@ -234,8 +239,12 @@ end
     if host
       h.store("id", host["id"])
     end
+    #if resource[:opsnote]
+    #  opsnote_resp = rpc("addOpsNote", {"description" => "Puppet update: "}
+    #end
     update_resp = rpc("updateHost", h)
     #debug(update_resp)
+    update_resp
   end
 
   #return a host object from displayname
