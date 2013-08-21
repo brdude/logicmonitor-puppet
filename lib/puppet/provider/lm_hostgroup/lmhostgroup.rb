@@ -57,7 +57,11 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
 
   def exists?
     debug("Checking for hostgroup #{resource[:fullpath]}")
-    get_group(resource[:fullpath])
+    if resource[:fullpath].eql?("/")
+      true
+    else
+      get_group(resource[:fullpath])
+    end
   end
 
   #
@@ -152,26 +156,32 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   #
 
   def build_param_hash(fullpath, description, properties, alertenable, parent_id)
-    path = fullpath.rpartition("/")
-    hash = {"name" => path[2] }
-    hash.store("parentId", parent_id)
-    hash.store("alertEnable", alertenable)
-    unless description.nil?
+    if fullpath.eql?("/")
+      hash = {"id" => 1 }
+    else
+      path = fullpath.rpartition("/")
+      hash = {"name" => path[2] }
+    end
+    if parent_id
+      hash.store("parentId", parent_id)
+    end
+      hash.store("alertEnable", alertenable)
+      unless description.nil?
         hash.store("description", description)
-    end
-    index = 0
-    unless properties.nil?
-      properties.each_pair do |key, value|
-        hash.store("propName#{index}", key)
-        hash.store("propValue#{index}", value)
-        index = index + 1
       end
-    end
-    #debug(index)
-    hash.store("propName#{index}", "puppet.update.on") 
-    hash.store("propValue#{index}", DateTime.now().to_s )
-    #p hash
-    hash
+      index = 0
+      unless properties.nil?
+        properties.each_pair do |key, value|
+          hash.store("propName#{index}", key)
+          hash.store("propValue#{index}", value)
+          index = index + 1
+        end
+      end
+      #debug(index)
+      hash.store("propName#{index}", "puppet.update.on") 
+      hash.store("propValue#{index}", DateTime.now().to_s )
+      #p hash
+      hash
   end
 
   def recursive_create(fullpath, description, properties, alertenable)
@@ -205,13 +215,20 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
 
   def get_group(fullpath)
     returnval = nil 
-    group_list = JSON.parse(rpc("getHostGroups", {}))
-    if group_list["data"].nil? 
-      debug("Unable to retrieve list of host groups from LogicMonitor Account")
+    if fullpath.eql?("/")
+      group = JSON.parse(rpc("getHostGroup", {"hostGroupId" => 1}))
+      if group["data"]
+        returnval = group["data"]
+      end
     else
-      group_list["data"].each do |group|
-        if group["fullPath"].eql?(fullpath.sub("/", ""))    #Check to see if group exists          
-          returnval = group
+      group_list = JSON.parse(rpc("getHostGroups", {}))
+      if group_list["data"].nil? 
+        debug("Unable to retrieve list of host groups from LogicMonitor Account")
+      else
+        group_list["data"].each do |group|
+          if group["fullPath"].eql?(fullpath.sub("/", ""))    #Check to see if group exists          
+            returnval = group
+          end
         end
       end
     end
