@@ -1,8 +1,11 @@
 # === Class: logicmonitor::host
 #
-# This class flags nodes which should be added to monitoring in a LogicMonitor portal.
-# In addition to flagging the node, it also sets how the node will appear in the portal
-# with regards to display name, associated host groups, alerting and properties. 
+# This class flags nodes which should be added
+# to monitoring in a LogicMonitor portal.
+# In addition to flagging the node,
+# it also sets how the node will appear in the portal
+# with regards to display name,
+# associated host groups, alerting and properties.
 #
 # === Parameters
 #
@@ -10,17 +13,21 @@
 #    Required
 #    Sets which collector will be handling the data for this device.
 #    Accepts a fully qualified domain name. A collector with the
-#    associated fully qualified domain name must exist in the 
+#    associated fully qualified domain name must exist in the
 #    Settings -> Collectors tab of the LogicMonitor Portal.
 #
 # [*hostname*]
-#    Defaults to the fully qualified domain name of the node.
-#    Provides the default host name and display name values for the LogicMonitor portal
-#    Can be overwritten by the $display_name and $ip_address parameters
+#    Defaults to the fully qualified domain
+#    name of the node.
+#    Provides the default host name and display name
+#    values for the LogicMonitor portal
+#    Can be overwritten by the $display_name and
+#    $ip_address parameters
 #
 # [*displayname*]
 #    Defaults to the value of $host_name.
-#    Set the display name that this node will appear under within the LogicMonitor portal
+#    Set the display name that this node will appear
+#    within the LogicMonitor portal
 #
 # [*description*]
 #    Defaults to "UNSET"
@@ -29,13 +36,15 @@
 # [*alertenable*]
 #    Defaults to true
 #    Set whether alerts will be sent for the host.
-#    Note: If a parent group is set to alertenable=false alerts for child hosts will be turned off as well.
+#    Note: If a parent group is set to alertenable=false
+#    alerts for child hosts will be turned off as well.
 #
 # [*groups*]
 #    Must be an Array of group names.
 #    e.g. groups => ["/puppetlabs", "/puppetlabs/puppetdb"]
 #    Default to empty.
-#    Set the list of groups this host belongs to. If left empty will add at the global level. 
+#    Set the list of groups this host belongs to.
+#    If left empty will add at the global level.
 #    To add to a subgroup, the full path name must be specified.
 #
 # [*properties*]
@@ -46,7 +55,8 @@
 #
 # [*opsnote*]
 #    Boolean. Defaults to false.
-#    When true will insert an OpsNote in your LogicMonitor account when Puppet updates the host.
+#    When true will insert an OpsNote in your
+#    LogicMonitor account when Puppet updates the host.
 #
 #  === Examples
 #
@@ -55,16 +65,16 @@
 #          hostname => "10.171.117.9",
 #          groups => ["/puppetlabs", "/puppetlabs/puppetdb"],
 #          properties => {"snmp.community" => "puppetlabs"},
-#          description => "This device hosts the puppetDB instance for this deployment",
+#          description => "This is an instance for this deployment",
 #        }
-#      
+#
 #  class {'logicmonitor::host':
 #          collector => $fqdn,
 #          display_name => "MySQL Production Host 1",
 #          groups => ["/puppet", "/production", "/mysql"],
 #          properties => {"mysql.port" => 1234},
 #        }
-#      
+#
 # === Authors
 #
 # Ethan Culler-Mayeno <ethan.culler-mayeno@logicmonitor.com
@@ -75,11 +85,11 @@
 #
 
 class logicmonitor::host(
-  $collector,
+  $collector        = $::fqdn,
   $hostname         = $::fqdn,
   $displayname      = $::fqdn,
-  $description      = "",
-  $alertenable = true,
+  $description      = '',
+  $alertenable      = true,
   $groups           = [],
   $properties       = {},
   ) inherits logicmonitor {
@@ -92,7 +102,5 @@ class logicmonitor::host(
       alertenable  => $alertenable,
       groups       => $groups,
       properties   => $properties,
-   }
-    
-    
+      }
 }
