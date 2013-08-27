@@ -80,47 +80,62 @@ This module uses exported resources extensively. Exported resources require stor
 
 ## Examples
 
+Modify the "manifests/config.pp" file with your LogicMonitor account information
+    class logicmonitor::config {
+      # LogicMonitor API access credentials
+      # your account name is take from the web address of your account, 
+      # eg "https://chipmco.logicmonitor.com"
+      $account  = 'chimpco'
+      $user     = 'bruce.wayne'
+      $password = 'nanananananananaBatman!'
+    }
+
 ### Logicmonitor::Master Node
 
 #### Using credentials set in logicmonitor::config
+# modify
 
-    node /^puppet-node1/ {
-    	 include logicmonitor::master
-	 include logicmonitor::collector  
+    node /^puppet-master/ {
+      # the puppet master is where API calls to the LogicMonitor server are sent from
+      include logicmonitor::master
+      
+      # In our example, the master will also have a collector installed.  This is optional - the
+      # collector can be installed anywhere
+      include logicmonitor::collector  
 
+      class {'logicmonitor::host':
+        collector => $fqdn,
+        groups => ["/puppet", "/puppetlabs/puppetdb"],
+        properties => {"test.prop" => "test2", "test.port" => 12345 },
+      }
 
-	 class {'logicmonitor::host':
-	       collector => $fqdn,
-	       groups => ["/puppet", "/puppetlabs/puppetdb"],
-               properties => {"test.prop" => "test2", "test.port" => 12345 },
-	 }
+      # Managing the properties on the root host group will set these properties for the entire LogicMonitor account
+      # These properties can be over written by setting them at the child group or host level.
+      @@lm_hostgroup { "/":
+        properties => {"mysql.user" => "default_user" },
+      }
 
-         # Managing the properties on the root host group will set these properties for the entire LogicMonitor account
-         # These properties can be over written by setting them at the child group or host level.
-    	 @@lm_hostgroup { "/":
-    	       properties => {"mysql.user" => "default_user" },
-    	 }
+      @@lm_hostgroup { "/puppet":
+        properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
+        description => 'This is the top level puppet managed host group',
+    	}
 
-	 @@lm_hostgroup { "/puppet":
-    	       properties => {"mysql.port"=>1234, "snmp.community"=>"puppetlabs" },
-    	       description => 'This is the top level puppet managed host group',
-    	 }
-
-    	 @@lm_hostgroup {"/puppetlabs":}
-    	 @@lm_hostgroup { "/puppetlabs/puppetdb":
-    	       properties => {"snmp.community"=>"public"},
-    	 }
+      @@lm_hostgroup {"/puppetlabs":}
+      @@lm_hostgroup { "/puppetlabs/puppetdb":
+        properties => {"snmp.community"=>"public"},
+      }
     }
 
 #### Setting node specific credentials
 
     node /^puppet-node1/ {
-         class {"logicmonitor":
-	       account  => "puppet",
-	       user     => "metallica",
-	       password => "master_of_puppets",
-	 }
-    	 include logicmonitor::master
+      class {"logicmonitor":
+        account  => "puppet",
+        user     => "metallica",
+        password => "master_of_puppets",
+      }
+      
+      include logicmonitor::master
 	 include logicmonitor::collector  
 
 
