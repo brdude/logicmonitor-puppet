@@ -124,7 +124,7 @@ SSL with your LogicMonitor account.
       }
 
       # create "Development" and "Operations" hostgroups
-      @@lm_hostgroup { "/Development":
+      @@lm_hostgroup {"/Development":
         description => 'This is the top level puppet managed host group',
       }
 
@@ -133,7 +133,7 @@ SSL with your LogicMonitor account.
       # Create US-West host group, as well as a sub-group "production".  
       # The "production" group will have use a different SNMP community
       @@lm_hostgroup {"/US-West":}
-      @@lm_hostgroup { "/US-West/production":
+      @@lm_hostgroup {"/US-West/production":
         properties => { "snmp.community"=>"secret_community_RO" },
       }
 
@@ -153,11 +153,13 @@ SSL with your LogicMonitor account.
 
     node /^app\d+.lax6/ {
       $lm_collector = "puppet-master.lax6.chimpco"
+      
       class {'logicmonitor::host':
-        collector => "puppet-master.lax6.chimpco",
+        collector => $lm_collector,
         groups => ["/US-West/production"],
-        properties => {"test.prop" => "test2", "test.port" => 12345 },
+        properties => {"jmx.pass" => "MonitorMEEEE_pw_", "jmx.port" => 12345 },
       }
+    }
       
 ### Additional collector and East Coast nodes
 
@@ -174,13 +176,12 @@ SSL with your LogicMonitor account.
         collector  => "collector1.dc7.chimpco",
         groups     => ["/US-East","Operations"]
       }
-
     }
 
-    # All East coast nodes will be monitor by the previously defined collector
+    # All East coast nodes will be monitored by the previously defined collector
     node /^app\d+.dc7/ {
       class {"logicmonitor::host":
-        collector => "puppet-master.lax6.chimpco",
+        collector => "collector1.dc7.chimpco",
         groups => ["/US-East"],
       }
     }
