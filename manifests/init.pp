@@ -52,6 +52,7 @@ class logicmonitor(
   $account=$logicmonitor::config::account,
   $user=$logicmonitor::config::user,
   $password=$logicmonitor::config::password,
+  $proxy=$logicmonitor::config::proxy,
   ) inherits logicmonitor::config {
 
 }

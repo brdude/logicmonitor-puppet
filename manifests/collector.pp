@@ -42,6 +42,7 @@ $install_dir='/usr/local/logicmonitor/'
     account  => $logicmonitor::account,
     user     => $logicmonitor::user,
     password => $logicmonitor::password,
+    proxy    => $logicmonitor::proxy,
   }
 
   lm_installer {$::fqdn:
@@ -51,6 +52,7 @@ $install_dir='/usr/local/logicmonitor/'
     account      => $logicmonitor::account,
     user         => $logicmonitor::user,
     password     => $logicmonitor::password,
+    proxy        => $logicmonitor::proxy,
     require      => Lm_collector[$::fqdn],
   }
 

@@ -43,4 +43,5 @@ class logicmonitor::config{
   $account  = 'chimpco'
   $user     = 'bruce.wayne'
   $password = 'nanananananananaBatman!'
+  $proxy    = false          #or 'http://whateveryour.proxy.is.com:80'
 }

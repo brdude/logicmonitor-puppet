@@ -20,8 +20,12 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   def self.prefetch(instances)
     @accounts = []
     @connections = {}
+    debug((pp instances))
     instances.each do |name, resource|
       @accounts.push(resource[:account])
+      if (defined?(resource[:proxy]))
+        @proxy = resource[:proxy]
+      end
     end
     @accounts.uniq!.each do |account|
       @connections[account] = new_connection(account + ".logicmonitor.com")
@@ -30,10 +34,20 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   
   def self.new_connection(host)
     @conn_created_at = Time.now()
-    @connection = Net::HTTP.new(host, 443)
-    @connection.use_ssl = true
-    @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    return @connection.start()  #return @connection
+    if (@proxy)
+      proxy = @proxy
+      debug("using proxy, new connection")
+      proxy_uri = URI(proxy)
+      debug("before net http")
+      proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+      return proxy.start(host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
+    else
+      debug("not using proxy, new connection")
+      @connection = Net::HTTP.new(host, 443)
+      @connection.use_ssl = true
+      @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      return @connection.start()  #return @connection
+    end
   end
 
   def self.get_connection(account)
@@ -239,6 +253,9 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     company = resource[:account]
     username = resource[:user]
     password = resource[:password]
+    if (defined?(resource[:proxy]))
+      proxy = resource[:proxy]
+    end
     url = "https://#{company}.logicmonitor.com/santaba/rpc/#{action}?"
     first_arg = true
     args.each_pair do |key, value|
@@ -249,15 +266,20 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
     uri = URI( URI.encode url )
     begin
       http = self.class.get_connection(company)
-      req = Net::HTTP::Get.new(uri.request_uri)
-      response = http.request(req)
+      if (resource[:proxy])
+        debug("using proxy, rpc")
+        response = http.get(uri.request_uri)
+      else
+        debug("not using proxy, rpc")
+        req = Net::HTTP::Get.new(uri.request_uri)
+        response = http.request(req)
+      end
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Exception => e
-      alert "There was an unexpected issue."
+      alert "There was an issue."
       alert e.message
-      alert e.backtrace
     end
     return nil
   end
