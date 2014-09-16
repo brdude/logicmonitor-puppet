@@ -20,7 +20,6 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
   def self.prefetch(instances)
     @accounts = []
     @connections = {}
-    debug((pp instances))
     instances.each do |name, resource|
       @accounts.push(resource[:account])
       if (defined?(resource[:proxy]))

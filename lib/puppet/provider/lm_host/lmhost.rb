@@ -10,7 +10,6 @@
 #
 require 'json'
 require 'open-uri'
-require 'pp'
 
 Puppet::Type.type(:lm_host).provide(:lmhost) do
   desc "This provider handles the creation, status, and deletion of hosts in your LogicMonitor account"
@@ -21,7 +20,6 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   def self.prefetch(instances)
     @accounts = []
     @connections = {}
-    debug((pp instances))
     instances.each do |name, resource|
       debug("inside each")
       @accounts.push(resource[:account])
