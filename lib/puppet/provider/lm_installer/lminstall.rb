@@ -124,9 +124,10 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
-    rescue Error => e
-      alert "There was an issue."
+    rescue Exception => e
+      alert "There was an unexpected issue."
       alert e.message
+      alert e.bactrace
     end
     return nil
   end
@@ -162,9 +163,10 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
-    rescue Error => e
-      alert "There was an issue."
+    rescue Exception => e
+      alert "There was an unexpected issue."
       alert e.message
+      alert e.backtrace
     end
     return nil
   end
