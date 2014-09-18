@@ -21,7 +21,6 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
     @accounts = []
     @connections = {}
     instances.each do |name, resource|
-      debug("inside each")
       @accounts.push(resource[:account])
       if (defined?(resource[:proxy]))
         @proxy = resource[:proxy]
@@ -36,13 +35,10 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
     @conn_created_at = Time.now()
     if (@proxy)
       proxy = @proxy
-      debug("using proxy, new connection")
       proxy_uri = URI(proxy)
-      debug("before net http")
       proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
       return proxy.start(host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
     else
-      debug("not using proxy, new connection")
       @connection = Net::HTTP.new(host, 443)
       @connection.use_ssl = true
       @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -427,15 +423,12 @@ end
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    #debug(url)
     uri = URI( URI.encode url)
     begin
       http = self.class.get_connection(company)
       if (resource[:proxy])
-        debug("using proxy, rpc")
         response = http.get(uri.request_uri)
       else
-        debug("not using proxy, rpc")
         req = Net::HTTP::Get.new(uri.request_uri)
         response = http.request(req)
       end

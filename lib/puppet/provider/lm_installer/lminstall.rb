@@ -110,7 +110,6 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     begin
       if (defined?(proxy))
         proxy_uri = URI(proxy)
-        debug("before net http")
         proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
         http = proxy.start(uri.host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
         response = http.get(uri.request_uri)
@@ -149,7 +148,6 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     begin
       if (defined?(proxy))
         proxy_uri = URI(proxy)
-        debug("before net http")
         proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
         http = proxy.start(uri.host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
         response = http.get(uri.request_uri)
