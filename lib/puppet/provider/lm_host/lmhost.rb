@@ -22,6 +22,9 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
     @connections = {}
     instances.each do |name, resource|
       @accounts.push(resource[:account])
+      if (defined?(resource[:proxy]))
+        @proxy = resource[:proxy]
+      end
     end
     @accounts.uniq!.each do |account|
       @connections[account] = new_connection(account + ".logicmonitor.com")
@@ -30,10 +33,17 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
   
   def self.new_connection(host)
     @conn_created_at = Time.now()
-    @connection = Net::HTTP.new(host, 443)
-    @connection.use_ssl = true
-    @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    return @connection.start()  #return @connection
+    if (@proxy)
+      proxy = @proxy
+      proxy_uri = URI(proxy)
+      proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+      return proxy.start(host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
+    else
+      @connection = Net::HTTP.new(host, 443)
+      @connection.use_ssl = true
+      @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      return @connection.start()  #return @connection
+    end
   end
 
   def self.get_connection(account)
@@ -404,18 +414,24 @@ end
     company = resource[:account]
     username = resource[:user]
     password = resource[:password]
+    if (defined?(resource[:proxy]))
+      proxy = resource[:proxy]
+    end
     url = "https://#{company}.logicmonitor.com/santaba/rpc/#{action}?"
     first_arg = true
     args.each_pair do |key, value|
       url << "#{key}=#{value}&"
     end
     url << "c=#{company}&u=#{username}&p=#{password}"
-    #debug(url)
     uri = URI( URI.encode url)
     begin
       http = self.class.get_connection(company)
-      req = Net::HTTP::Get.new(uri.request_uri)
-      response = http.request(req)
+      if (resource[:proxy])
+        response = http.get(uri.request_uri)
+      else
+        req = Net::HTTP::Get.new(uri.request_uri)
+        response = http.request(req)
+      end
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."

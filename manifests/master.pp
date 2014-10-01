@@ -33,11 +33,13 @@ class logicmonitor::master inherits logicmonitor {
       account  => $logicmonitor::account,
       user     => $logicmonitor::user,
       password => $logicmonitor::password,
+      proxy    => $logicmonitor::proxy,
   }
 
   Lm_host <<| |>> {
       account  => $logicmonitor::account,
       user     => $logicmonitor::user,
       password => $logicmonitor::password,
+      proxy    => $logicmonitor::proxy,
   }
 }

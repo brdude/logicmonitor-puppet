@@ -102,5 +102,7 @@ Additional options coming soon."
     desc "this is the password to make API calls and the LogicMonitor User provided"
   end
   
-
+  newparam(:proxy) do
+    desc "this is the password to make API calls and the LogicMonitor User provided"
+  end
 end

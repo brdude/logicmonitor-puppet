@@ -97,6 +97,9 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     company = resource[:account]
     username = resource[:user]
     password = resource[:password]
+    if (defined?(resource[:proxy]))
+      proxy = resource[:proxy]
+    end
     url = "https://#{company}.logicmonitor.com/santaba/rpc/#{action}?"
     first_arg = true
     args.each_pair do |key, value|
@@ -105,18 +108,25 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     url << "c=#{company}&u=#{username}&p=#{password}"
     uri = URI( URI.encode url )
     begin
-      http = Net::HTTP.new(uri.host, 443)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      req = Net::HTTP::Get.new(uri.request_uri)
-      response = http.request(req)
+      if (defined?(proxy))
+        proxy_uri = URI(proxy)
+        proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+        http = proxy.start(uri.host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
+        response = http.get(uri.request_uri)
+      else
+        http = Net::HTTP.new(uri.host, 443)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        req = Net::HTTP::Get.new(uri.request_uri)
+        response = http.request(req)
+      end
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
     rescue Exception => e
-      alert "There was an issue."
+      alert "There was an unexpected issue."
       alert e.message
-      alert e.backtrace
+      alert e.bactrace
     end
     return nil
   end
@@ -125,6 +135,9 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     company = resource[:account]
     username = resource[:user]
     password = resource[:password]
+    if (defined?(resource[:proxy]))
+      proxy = resource[:proxy]
+    end
     url = "https://#{company}.logicmonitor.com/santaba/do/#{action}?"
     first_arg = true
     args.each_pair do |key, value|
@@ -133,11 +146,18 @@ Puppet::Type.type(:lm_installer).provide(:lminstall) do
     url << "c=#{company}&u=#{username}&p=#{password}"
     uri = URI( URI.encode url )
     begin
-      http = Net::HTTP.new(uri.host, 443)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      req = Net::HTTP::Get.new(uri.request_uri)
-      response = http.request(req)
+      if (defined?(proxy))
+        proxy_uri = URI(proxy)
+        proxy = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port)
+        http = proxy.start(uri.host, :use_ssl => true, :verify_mode => OpenSSL::SSL::VERIFY_NONE )
+        response = http.get(uri.request_uri)
+      else
+        http = Net::HTTP.new(uri.host, 443)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        req = Net::HTTP::Get.new(uri.request_uri)
+        response = http.request(req)
+      end
       return response.body
     rescue SocketError => se
       alert "There was an issue communicating with #{url}. Please make sure everything is correct and try again."
