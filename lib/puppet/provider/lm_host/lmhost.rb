@@ -23,7 +23,8 @@ Puppet::Type.type(:lm_host).provide(:lmhost) do
     instances.each do |name, resource|
       @accounts.push(resource[:account])
     end
-    @accounts.uniq!.each do |account|
+    unique_accounts = @accounts.uniq
+    unique_accounts.each do |account|
       @connections[account] = new_connection(account + ".logicmonitor.com")
     end
   end
