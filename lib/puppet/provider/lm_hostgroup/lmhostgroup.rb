@@ -26,7 +26,8 @@ Puppet::Type.type(:lm_hostgroup).provide(:lmhostgroup) do
         @proxy = resource[:proxy]
       end
     end
-    @accounts.uniq!.each do |account|
+    unique_accounts = @accounts.uniq
+    unique_accounts.each do |account|
       @connections[account] = new_connection(account + ".logicmonitor.com")
     end
   end
