@@ -1,0 +1,41 @@
+{
+  "name": "logicmonitor-logicmonitor",
+  "version": "1.1.0",
+  "author": "Ethan Culler-Mayeno",
+  "summary": "Automate monitoring of your devices with LogicMonitor.",
+  "license": "Copyright 2012 LogicMonitor, Inc",
+  "source": "https://github.com/logicmonitor/logicmonitor-puppet",
+  "project_page": "https://github.com/logicmonitor/logicmonitor-puppet",
+  "issues_url": "https://github.com/logicmonitor/logicmonitor-puppet/issues",
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": "3.x"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat"
+    },
+    {
+      "operatingsystem": "CentOS"
+    },
+    {
+      "operatingsystem": "OracleLinux"
+    },
+    {
+      "operatingsystem": "Scientific"
+    },
+    {
+      "operatingsystem": "Debian"
+    },
+    {
+      "operatingsystem": "Ubuntu"
+    }
+  ]
+}

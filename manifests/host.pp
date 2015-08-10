@@ -84,23 +84,25 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor::host(
-  $collector        = $::fqdn,
-  $hostname         = $::fqdn,
-  $displayname      = $::fqdn,
-  $description      = '',
-  $alertenable      = true,
-  $groups           = [],
-  $properties       = {},
-  ) inherits logicmonitor {
+class logicmonitor::host (
+  $ensure      = present,
+  $collector   = $::fqdn,
+  $hostname    = $::fqdn,
+  $displayname = $::fqdn,
+  $description = '',
+  $alertenable = true,
+  $groups      = [],
+  $properties  = {},
+) {
 
-    @@lm_host{$hostname:
-      ensure       => present,
-      collector    => $collector,
-      displayname  => $displayname,
-      description  => $description,
-      alertenable  => $alertenable,
-      groups       => $groups,
-      properties   => $properties,
-      }
+  @@lm_host { $hostname:
+    ensure      => $ensure,
+    collector   => $collector,
+    displayname => $displayname,
+    description => $description,
+    alertenable => $alertenable,
+    groups      => $groups,
+    properties  => $properties,
+  }
+
 }

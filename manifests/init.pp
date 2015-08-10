@@ -8,36 +8,32 @@
 #
 # === Parameters
 #
-# [*account*]
-#    Sets which portal to manage
+# - LogicMonitor API access credentials.
 #
-# [*user*]
-#    Username for access to the portal.
-#    This user must have sufficient permissions to
-#    create/modify hosts, host groups, and collectors
+# [account]
+#    The name of your LogicMonitor account.
+#    E.g. companyname.logicmonitor.com's account should be "companyname"
 #
-# [*password*]
-#    Password for access to the portal
+# [user]
+#    A username with adaquate credentials to create,
+#    modify, and delete hosts, host groups, and collectors
+#    We recommend creating a puppet only user to track changes
+#    made by Puppet in the audit log.
 #
-# NOTE: all parameters can be set when the class is declared
-#   in your site.pp (must be declared either globally or on a single node)
-#   or in the variables found in logicmonitor::config
-#
-# === Variables
-#
-#  TBD
+# [password]
+#    The password associated with the chose LogicMonitor user.
 #
 # === Examples
 #
 # With parameters:
-#   class{ "logicmonitor":
-#     account             => "mycompany",
-#     $user               => "me",
-#     $password           => "password",
+#   class{ 'logicmonitor':
+#     account             => 'mycompany',
+#     $user               => 'me',
+#     $password           => 'password',
 #   }
 #
-# Using logicmonitor::config:
-#   class( "logicmonitor": }
+# Using Hiera
+#   class{ 'logicmonitor': }
 #
 # === Authors
 #
@@ -47,11 +43,23 @@
 #
 # Copyright 2012 LogicMonitor, Inc
 #
+class logicmonitor (
+  $account          = $::logicmonitor::params::account,
+  $user             = $::logicmonitor::params::user,
+  $password         = $::logicmonitor::params::password,
+  $install_dir      = $::logicmonitor::params::install_dir,
+  $agent_service    = $::logicmonitor::params::agent_service,
+  $watchdog_service = $::logicmonitor::params::watchdog_service,
+) inherits ::logicmonitor::params {
 
-class logicmonitor(
-  $account=$logicmonitor::config::account,
-  $user=$logicmonitor::config::user,
-  $password=$logicmonitor::config::password,
-  ) inherits logicmonitor::config {
+  # validate parameters here
+  validate_string($account)
+  validate_string($user)
+  validate_string($password)
+  validate_absolute_path($install_dir)
+  validate_string($agent_service)
+  validate_string($watchdog_service)
 
+  contain logicmonitor::install
+  contain logicmonitor::service
 }

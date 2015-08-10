@@ -27,17 +27,22 @@
 # Copyright 2012 LogicMonitor, Inc
 #
 
-class logicmonitor::master inherits logicmonitor {
+class logicmonitor::master (
+  $account  = $::logicmonitor::account,
+  $user     = $::logicmonitor::user,
+  $password = $::logicmonitor::password,
+)
+{
 
   Lm_hostgroup <<| |>> {
-      account  => $logicmonitor::account,
-      user     => $logicmonitor::user,
-      password => $logicmonitor::password,
+      account  => $account,
+      user     => $user,
+      password => $password,
   }
 
   Lm_host <<| |>> {
-      account  => $logicmonitor::account,
-      user     => $logicmonitor::user,
-      password => $logicmonitor::password,
+      account  => $account,
+      user     => $user,
+      password => $password,
   }
 }
